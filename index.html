@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- PapaParse para procesar CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <!-- SheetJS para procesar Excel (.xlsx, .xls) -->
+    <!-- SheetJS para procesar Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -20,11 +20,11 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
                             deep: '#0f172a'
                         }
                     }
@@ -46,26 +46,26 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+<body class="bg-gradient-to-br from-sky-50 via-sky-50/40 to-amber-50/30 text-slate-800 font-sans min-h-screen flex flex-col animate-fade-in">
 
     <!-- HEADER / NAVIGATION -->
     <header class="bg-brand-deep text-white shadow-lg sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-3">
-                    <div class="bg-emerald-500 p-2 rounded-lg text-slate-950">
-                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    <div class="bg-sky-500 p-2 rounded-lg text-slate-950">
+                        <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
                     </div>
                     <div>
-                        <span class="font-bold text-lg tracking-wider block">INSURE<span class="text-emerald-400">DATA</span></span>
-                        <span class="text-xs text-slate-400 -mt-1 block">Análisis de Seguros Médicos v1.4</span>
+                        <span class="font-bold text-lg tracking-wider block">INSURE<span class="text-sky-400">DATA</span></span>
+                        <span class="text-xs text-slate-400 -mt-1 block">Retención Médica Predictiva v2.0</span>
                     </div>
                 </div>
                 
-                <!-- Security Switch -->
+                <!-- Security Switch (HIPAA) -->
                 <div class="flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700">
-                    <span class="text-xs text-slate-300 font-medium">Privacidad (HIPAA)</span>
-                    <button id="securityToggle" onclick="togglePrivacyMode()" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-emerald-500" role="switch" aria-checked="true">
+                    <span class="text-xs text-slate-300 font-medium">Enmascarar HIPAA</span>
+                    <button id="securityToggle" onclick="togglePrivacyMode()" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-sky-500" role="switch" aria-checked="true">
                         <span id="securityToggleThumb" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-5"></span>
                     </button>
                 </div>
@@ -79,58 +79,45 @@
         <!-- SIDEBAR MENU -->
         <aside class="lg:w-64 shrink-0 flex flex-col gap-4">
             <!-- File Upload Card -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-sky-100">
                 <h3 class="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                    <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-500"></i> Carga Excel / CSV
+                    <i data-lucide="file-spreadsheet" class="w-4 h-4 text-sky-500"></i> Carga de Datos
                 </h3>
-                <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-xl p-4 text-center cursor-pointer transition-colors group">
-                    <input type="file" id="csvFileInput" accept=".csv, .xlsx, .xls" class="hidden" onchange="handleFileSelect(event)">
-                    <i data-lucide="upload-cloud" class="w-8 h-8 text-slate-400 group-hover:text-emerald-500 mx-auto mb-2 transition-colors"></i>
-                    <p class="text-xs font-semibold text-slate-600 mb-1">Cargar Excel o CSV</p>
+                
+                <!-- INPUT DE ARCHIVO -->
+                <input type="file" id="csvFileInput" accept=".csv, .xlsx, .xls" class="hidden" onchange="handleFileSelect(event)">
+                
+                <div id="dropzone" onclick="document.getElementById('csvFileInput').click()" class="border-2 border-dashed border-sky-200 hover:border-sky-500 rounded-xl p-4 text-center cursor-pointer transition-all duration-200 group bg-slate-50/50">
+                    <i data-lucide="upload-cloud" class="w-8 h-8 text-slate-400 group-hover:text-sky-500 mx-auto mb-2 transition-colors"></i>
+                    <p class="text-xs font-semibold text-slate-600 mb-1 text-sky-600 group-hover:text-sky-700">Cargar Excel o CSV</p>
                     <p class="text-[10px] text-slate-400">Arrastra o haz clic aquí</p>
                 </div>
                 <div class="mt-3 flex items-center justify-between text-xs text-slate-500">
                     <span>Estado:</span>
-                    <span id="dataStatusBadge" class="bg-emerald-100 text-emerald-800 font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Simulado
+                    <span id="dataStatusBadge" class="bg-sky-100 text-sky-800 font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span> Simulado
                     </span>
                 </div>
-                <button onclick="restoreMockData()" class="w-full mt-3 text-xs text-center text-slate-500 hover:text-emerald-600 underline cursor-pointer">
+                <button onclick="restoreMockData()" class="w-full mt-3 text-xs text-center text-slate-500 hover:text-sky-600 underline cursor-pointer">
                     Restaurar datos de muestra
                 </button>
             </div>
 
             <!-- Main Navigation Tabs -->
-            <nav class="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-1">
-                <button onclick="switchTab('dashboard')" id="tabBtn-dashboard" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all bg-emerald-500 text-white shadow-sm">
+            <nav class="bg-white p-2 rounded-2xl shadow-sm border border-sky-100 flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-1">
+                <button onclick="switchTab('dashboard')" id="tabBtn-dashboard" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all bg-sky-500 text-white shadow-md shadow-sky-500/10">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                    <span>Dashboard</span>
+                    <span>Dashboard Principal</span>
                 </button>
-                <button onclick="switchTab('risk')" id="tabBtn-risk" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">
-                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-                    <span>Análisis de Riesgo</span>
-                    <span id="riskBadge" class="ml-auto bg-red-100 text-red-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+                <button onclick="switchTab('risk')" id="tabBtn-risk" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-sky-50 transition-all">
+                    <i data-lucide="brain-circuit" class="w-4 h-4 text-sky-500"></i>
+                    <span>Análisis de Riesgo IA</span>
+                    <span id="riskBadge" class="ml-auto bg-rose-100 text-rose-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
                 </button>
-                <button onclick="switchTab('cleaning')" id="tabBtn-cleaning" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">
-                    <i data-lucide="sparkles" class="w-4 h-4"></i>
-                    <span>Limpieza & Calidad</span>
-                    <span id="cleaningBadge" class="ml-auto bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
-                </button>
-                <button onclick="switchTab('portfolio')" id="tabBtn-portfolio" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">
-                    <i data-lucide="wallet" class="w-4 h-4"></i>
-                    <span>Control de Cartera</span>
-                </button>
-                <button onclick="switchTab('behavior')" id="tabBtn-behavior" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">
-                    <i data-lucide="users" class="w-4 h-4"></i>
-                    <span>Comportamiento</span>
-                </button>
-                <button onclick="switchTab('decisions')" id="tabBtn-decisions" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">
-                    <i data-lucide="brain" class="w-4 h-4"></i>
+                <button onclick="switchTab('decisions')" id="tabBtn-decisions" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-sky-50 transition-all">
+                    <i data-lucide="shield-alert" class="w-4 h-4 text-rose-500 animate-pulse"></i>
                     <span>Toma de Decisiones</span>
-                </button>
-                <button onclick="switchTab('compliance')" id="tabBtn-compliance" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">
-                    <i data-lucide="file-check-2" class="w-4 h-4"></i>
-                    <span>Seguridad & Reportes</span>
+                    <span id="unpaidBadge" class="ml-auto bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
                 </button>
             </nav>
         </aside>
@@ -138,17 +125,17 @@
         <!-- CONTENT AREA -->
         <main class="flex-1 min-w-0">
             <!-- Toast Notification Container -->
-            <div id="toast" class="hidden mb-4 p-4 rounded-xl border flex items-center gap-3 bg-emerald-50 border-emerald-200 text-emerald-800 animate-fade-in shadow-sm">
-                <i data-lucide="info" class="w-5 h-5 shrink-0 text-emerald-600"></i>
+            <div id="toast" class="hidden mb-4 p-4 rounded-xl border flex items-center gap-3 bg-sky-50 border-sky-200 text-sky-800 animate-fade-in shadow-sm">
+                <i data-lucide="info" class="w-5 h-5 shrink-0 text-sky-600"></i>
                 <span id="toastMessage" class="text-sm font-medium"></span>
             </div>
 
             <!-- TAB: DASHBOARD -->
             <section id="tabContent-dashboard" class="tab-content space-y-6">
-                <!-- KPI Indicators - Extended to 6 Cards -->
-                <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3">
-                        <div class="p-2.5 rounded-xl bg-blue-50 text-blue-600 shrink-0">
+                <!-- KPI Indicators - Focused 4 Card System -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-sky-100 flex items-center gap-3">
+                        <div class="p-2.5 rounded-xl bg-sky-50 text-sky-600 shrink-0">
                             <i data-lucide="users-2" class="w-5 h-5"></i>
                         </div>
                         <div>
@@ -157,72 +144,50 @@
                             <span id="kpi-total-clients" class="text-[9px] text-slate-400">0 en total</span>
                         </div>
                     </div>
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-emerald-100 flex items-center gap-3">
                         <div class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 shrink-0">
                             <i data-lucide="badge-dollar-sign" class="w-5 h-5"></i>
                         </div>
                         <div>
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pagos al Día</p>
                             <h3 id="kpi-paid-percentage" class="text-xl font-bold text-slate-800">0%</h3>
-                            <span id="kpi-unpaid-count" class="text-[9px] text-red-500 font-medium">0 atrasados</span>
+                            <span id="kpi-unpaid-count" class="text-[9px] text-rose-500 font-medium">0 atrasados</span>
                         </div>
                     </div>
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-sky-100 flex items-center gap-3">
                         <div class="p-2.5 rounded-xl bg-amber-50 text-amber-600 shrink-0">
                             <i data-lucide="folder-git" class="w-5 h-5"></i>
                         </div>
                         <div>
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Doc. Incompletos</p>
                             <h3 id="kpi-docs-incomplete" class="text-xl font-bold text-slate-800">0</h3>
-                            <span id="kpi-docs-warning" class="text-[9px] text-amber-600 font-medium">Requieren acción</span>
+                            <span id="kpi-docs-warning" class="text-[9px] text-amber-600 font-medium">Acción Requerida</span>
                         </div>
                     </div>
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3">
-                        <div class="p-2.5 rounded-xl bg-purple-50 text-purple-600 shrink-0">
-                            <i data-lucide="phone-call" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tasa de Respuesta</p>
-                            <h3 id="kpi-response-rate" class="text-xl font-bold text-slate-800">0%</h3>
-                            <span id="kpi-avg-followup" class="text-[9px] text-slate-400">Canal preferencial</span>
-                        </div>
-                    </div>
-                    <!-- KPI: Seguimientos Registrados -->
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3">
-                        <div class="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 shrink-0">
-                            <i data-lucide="message-square-plus" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Seguimientos</p>
-                            <h3 id="kpi-notes-count" class="text-xl font-bold text-slate-800">0</h3>
-                            <span id="kpi-notes-ratio" class="text-[9px] text-indigo-500 font-semibold">0% Cobertura de notas</span>
-                        </div>
-                    </div>
-                    <!-- KPI: Alertas Críticas (Documentos vencidos sin respuesta) -->
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-red-200 flex items-center gap-3 relative overflow-hidden group">
-                        <div class="absolute inset-0 bg-red-500/5 group-hover:bg-red-500/10 transition-colors pointer-events-none"></div>
-                        <div class="p-2.5 rounded-xl bg-red-100 text-red-600 shrink-0 z-10">
-                            <i data-lucide="bell-ring" class="w-5 h-5"></i>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-rose-250 flex items-center gap-3 relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-rose-500/5 group-hover:bg-rose-500/10 transition-colors pointer-events-none"></div>
+                        <div class="p-2.5 rounded-xl bg-rose-100 text-rose-600 shrink-0 z-10">
+                            <i data-lucide="bell-ring" class="w-5 h-5 animate-pulse"></i>
                         </div>
                         <div class="z-10">
-                            <p class="text-[10px] font-bold text-red-500 uppercase tracking-wider">Alertas de Abandono</p>
-                            <h3 id="kpi-critical-alerts" class="text-xl font-bold text-red-700">0</h3>
-                            <span id="kpi-critical-status" class="text-[9px] text-red-600 font-bold">Vencidos sin responder</span>
+                            <p class="text-[10px] font-bold text-rose-500 uppercase tracking-wider">Riesgo Rojo (Abandono)</p>
+                            <h3 id="kpi-critical-alerts" class="text-xl font-bold text-rose-700">0</h3>
+                            <span class="text-[9px] text-rose-600 font-bold">Urgentes por recuperar</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- SECCIÓN ESPECIAL: ALARMAS CRÍTICAS - DOCUMENTOS VENCIDOS Y SIN RESPUESTA -->
-                <div class="bg-white rounded-2xl shadow-sm border border-red-200 overflow-hidden">
-                    <div class="bg-gradient-to-r from-red-600 to-amber-600 text-white p-4 flex items-center justify-between">
+                <!-- ALARMAS CRÍTICAS -->
+                <div class="bg-white rounded-2xl shadow-sm border border-rose-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-rose-600 to-amber-600 text-white p-4 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <i data-lucide="alert-triangle" class="w-5 h-5 animate-pulse"></i>
                             <div>
-                                <h3 class="font-bold text-sm">Alarmas Críticas: Clientes con Documentación Vencida y Sin Respuesta</h3>
-                                <p class="text-xs text-red-100">Clientes que superaron su fecha límite de documentos, no han respondido o no tienen seguimientos registrados.</p>
+                                <h3 class="font-bold text-sm">Alerta Urgente: Documentación Crítica (DMI)</h3>
+                                <p class="text-xs text-rose-100">Clientes con documentos vencidos o que vencen en los próximos 15 días.</p>
                             </div>
                         </div>
-                        <span id="alertCountBadge" class="bg-white text-red-700 font-bold text-xs px-2.5 py-1 rounded-full">0 Clientes</span>
+                        <span id="alertCountBadge" class="bg-white text-rose-700 font-bold text-xs px-2.5 py-1 rounded-full">0 Clientes</span>
                     </div>
                     
                     <div class="p-4 overflow-x-auto custom-scrollbar">
@@ -230,11 +195,11 @@
                             <thead>
                                 <tr class="border-b border-slate-100 text-xs font-bold text-slate-500 uppercase">
                                     <th class="pb-3">Nombre Cliente</th>
-                                    <th class="pb-3">Documento Requerido</th>
-                                    <th class="pb-3">Límite Vencido</th>
-                                    <th class="pb-3">Días de Atraso</th>
-                                    <th class="pb-3">Último Intento</th>
-                                    <th class="pb-3 text-right">Acción Urgente</th>
+                                    <th class="pb-3">Requisito Reclamado</th>
+                                    <th class="pb-3">Fecha de Plazo</th>
+                                    <th class="pb-3">Estado del Plazo</th>
+                                    <th class="pb-3">Último Seguimiento</th>
+                                    <th class="pb-3 text-right">Contacto Rápido</th>
                                 </tr>
                             </thead>
                             <tbody id="criticalAlertsTableBody" class="text-sm divide-y divide-slate-100">
@@ -245,32 +210,22 @@
                 </div>
 
                 <!-- Graphs Section -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Distribution by Company -->
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-                        <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
-                            <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400"></i> Distribución por Compañía de Seguros
-                        </h3>
-                        <div class="relative flex-1 min-h-[250px]">
-                            <canvas id="companyChart"></canvas>
-                        </div>
-                    </div>
-
+                <div class="grid grid-cols-1 gap-6">
                     <!-- Client Status & Docs -->
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-sky-100 flex flex-col">
                         <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
-                            <i data-lucide="pie-chart" class="w-4 h-4 text-slate-400"></i> Estado de Documentos de Clientes
+                            <i data-lucide="pie-chart" class="w-4 h-4 text-slate-400"></i> Estado de Documentación (Marketplace)
                         </h3>
-                        <div class="relative flex-1 min-h-[250px] flex items-center justify-center">
+                        <div class="relative flex-1 min-h-[300px] flex items-center justify-center">
                             <canvas id="documentChart"></canvas>
                         </div>
                     </div>
                 </div>
 
                 <!-- Resumen y Palabras Clave de Notas de Seguimiento -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-sky-100">
                     <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
-                        <i data-lucide="message-square" class="w-4 h-4 text-slate-400"></i> Análisis de Temas Comunes en Notas de Seguimiento
+                        <i data-lucide="message-square" class="w-4 h-4 text-slate-400"></i> Categorización de Temas Administrativos Recurrentes
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="trackingThemesContainer">
                         <!-- Populated dynamically -->
@@ -278,15 +233,65 @@
                 </div>
             </section>
 
-            <!-- TAB: NUEVO ANÁLISIS DE RIESGO DE CANCELACIÓN (Pestaña Solicitada) -->
+            <!-- TAB: ANÁLISIS DE RIESGO DE CANCELACIÓN (INTEGRADO CON IA CONCURRENTE) -->
             <section id="tabContent-risk" class="tab-content space-y-6 hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <!-- AI Control Console -->
+                <div class="bg-gradient-to-br from-sky-500 to-indigo-600 text-white rounded-2xl p-6 shadow-lg shadow-sky-600/10 space-y-6">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="p-3 bg-white/10 rounded-xl">
+                                <i data-lucide="brain-circuit" class="w-6 h-6 text-white animate-pulse"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-lg">Motor Predictivo Cognitivo (Gemini 2.5)</h3>
+                                <p class="text-xs text-sky-100">Analiza semánticamente las notas de seguimiento mediante modelos de lenguaje para clasificar el Churn.</p>
+                            </div>
+                        </div>
+                        <button onclick="runAIPredictions()" class="bg-white text-sky-900 hover:bg-sky-50 font-black text-xs px-5 py-3 rounded-xl flex items-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all">
+                            <i data-lucide="play" class="w-4 h-4 fill-sky-900"></i> Ejecutar Escaneo Semántico General
+                        </button>
+                    </div>
+
+                    <!-- Column Mapping Settings -->
+                    <div class="bg-white/10 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-sky-100 uppercase tracking-wider mb-1.5">Columna de Notas de Seguimiento</label>
+                            <select id="aiNoteColSelect" onchange="updateNoteColSelection()" class="w-full text-xs bg-slate-900/40 border border-white/20 rounded-xl p-3 font-semibold text-white focus:outline-none focus:ring-2 focus:ring-white">
+                                <option value="">— Seleccionar columna de notas —</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-sky-100 uppercase tracking-wider mb-1.5">Columna de Identificación/Nombre</label>
+                            <select id="aiNameColSelect" onchange="updateNameColSelection()" class="w-full text-xs bg-slate-900/40 border border-white/20 rounded-xl p-3 font-semibold text-white focus:outline-none focus:ring-2 focus:ring-white">
+                                <option value="">— Seleccionar columna de nombres —</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Live AI Progress Bar -->
+                    <div id="aiProgressBarContainer" class="hidden pt-4 border-t border-white/10 space-y-3">
+                        <div class="flex justify-between text-xs font-bold">
+                            <span id="aiProgressStatus">Inicializando cola paralela con Gemini...</span>
+                            <span id="aiProgressPercentage">0%</span>
+                        </div>
+                        <div class="w-full bg-white/20 h-2.5 rounded-full overflow-hidden">
+                            <div id="aiProgressBarFill" class="bg-white h-full rounded-full w-0 transition-all duration-300"></div>
+                        </div>
+                        <div class="flex items-center gap-2 text-[10px] text-sky-100">
+                            <span id="aiProgressDetails">Procesados: 0 / 0 registros.</span>
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-300 animate-ping"></span>
+                            <span>Concurrencia: 4 workers activos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-sky-100">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                         <div>
                             <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <i data-lucide="shield-alert" class="text-red-500 w-5 h-5"></i> Sistema de Prevención de Fugas & Análisis de Riesgo
+                                <i data-lucide="shield-alert" class="text-rose-500 w-5 h-5"></i> Sistema de Prevención de Fugas & Análisis de Riesgo
                             </h2>
-                            <p class="text-xs text-slate-500">Procesador semántico de tonos de llamada, cambios de comportamiento e insatisfacción por categorías.</p>
+                            <p class="text-xs text-slate-500">Módulo de detección de anomalías lógicas, cambio de comportamiento y categorización de alarmas.</p>
                         </div>
                         
                         <!-- Filter Controls -->
@@ -297,32 +302,24 @@
                                 <option value="AMARILLO">Riesgo AMARILLO (Medio)</option>
                                 <option value="VERDE">Riesgo VERDE (Bajo)</option>
                             </select>
-                            <select id="riskFilterCategory" onchange="filterRiskAnalysis()" class="text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium">
-                                <option value="">Todas las Categorías</option>
-                                <option value="Precio">Precio</option>
-                                <option value="Servicio / Insatisfacción">Servicio / Insatisfacción</option>
-                                <option value="Falta de uso">Falta de uso</option>
-                                <option value="Competencia">Competencia</option>
-                                <option value="Ninguno">Estable / Ninguno</option>
-                            </select>
                         </div>
                     </div>
 
                     <!-- Risk Metrics Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div class="p-4 rounded-xl border border-red-100 bg-red-50/40 flex items-center justify-between">
+                        <div class="p-4 rounded-xl border border-rose-100 bg-rose-50/40 flex items-center justify-between">
                             <div>
-                                <span class="text-xs font-bold text-red-800 uppercase block">Rojo (Alto Riesgo)</span>
-                                <span id="risk-count-rojo" class="text-2xl font-black text-red-700">0</span>
-                                <span class="text-[9px] text-red-500 block mt-1">Duda prolongada / No contesta</span>
+                                <span class="text-xs font-bold text-rose-800 uppercase block">Rojo (Alto Riesgo)</span>
+                                <span id="risk-count-rojo" class="text-2xl font-black text-rose-700">0</span>
+                                <span class="text-[9px] text-rose-500 block mt-1">61-100 Pts / Cancelación inminente</span>
                             </div>
-                            <div class="w-3.5 h-3.5 rounded-full bg-red-500 animate-ping"></div>
+                            <div class="w-3.5 h-3.5 rounded-full bg-rose-500 animate-ping"></div>
                         </div>
                         <div class="p-4 rounded-xl border border-amber-100 bg-amber-50/40 flex items-center justify-between">
                             <div>
                                 <span class="text-xs font-bold text-amber-800 uppercase block">Amarillo (Medio)</span>
                                 <span id="risk-count-amarillo" class="text-2xl font-black text-amber-700">0</span>
-                                <span class="text-[9px] text-amber-500 block mt-1">Evaluando / Caro / Tarde</span>
+                                <span class="text-[9px] text-amber-500 block mt-1">26-60 Pts / Intervención preventiva</span>
                             </div>
                             <div class="w-3.5 h-3.5 rounded-full bg-amber-400"></div>
                         </div>
@@ -330,28 +327,28 @@
                             <div>
                                 <span class="text-xs font-bold text-emerald-800 uppercase block">Verde (Estables)</span>
                                 <span id="risk-count-verde" class="text-2xl font-black text-emerald-700">0</span>
-                                <span class="text-[9px] text-emerald-500 block mt-1">Puntuales / Clientes fieles</span>
+                                <span class="text-[9px] text-emerald-500 block mt-1">0-25 Pts / Clientes fieles</span>
                             </div>
                             <div class="w-3.5 h-3.5 rounded-full bg-emerald-500"></div>
                         </div>
-                        <div class="p-4 rounded-xl border border-blue-100 bg-blue-50 flex items-center justify-center">
+                        <div class="p-4 rounded-xl border border-sky-100 bg-sky-50 flex items-center justify-center">
                             <div class="relative w-full h-[80px]">
                                 <canvas id="riskDonutChart"></canvas>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Risk Analysis Main Table -->
+                    <!-- Risk Analysis Table -->
                     <div class="overflow-x-auto custom-scrollbar border border-slate-100 rounded-xl">
                         <table class="w-full text-left border-collapse min-w-[800px]">
                             <thead>
                                 <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase">
                                     <th class="p-4">Asegurado</th>
-                                    <th class="p-4">Semáforo de Riesgo</th>
-                                    <th class="p-4">Categoría del Riesgo</th>
-                                    <th class="p-4">Nota Detectada</th>
-                                    <th class="p-4">Razón Extraída</th>
-                                    <th class="p-4 text-right">Acción de Retención</th>
+                                    <th class="p-4 text-center">Score Predictivo</th>
+                                    <th class="p-4">Nivel Operativo</th>
+                                    <th class="p-4">Auditoría / Gatillos Detectados</th>
+                                    <th class="p-4">Análisis Semántico</th>
+                                    <th class="p-4 text-right">Acción Recomendada</th>
                                 </tr>
                             </thead>
                             <tbody id="riskTableBody" class="text-sm divide-y divide-slate-100">
@@ -362,259 +359,40 @@
                 </div>
             </section>
 
-            <!-- TAB: DATA CLEANING -->
-            <section id="tabContent-cleaning" class="tab-content space-y-6 hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                        <div>
-                            <h2 class="text-lg font-bold text-slate-800">Calidad de Datos y Limpieza Automatizada</h2>
-                            <p class="text-xs text-slate-500">Detección de duplicados, datos inválidos, inconsistencias lógicas e información incompleta.</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="runAutoCleaning()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl flex items-center gap-2 transition-colors">
-                                <i data-lucide="wand2" class="w-4 h-4"></i> Normalizar & Limpiar Base
-                            </button>
-                            <button onclick="exportCleanCSV()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold text-sm px-4 py-2.5 rounded-xl flex items-center gap-2 transition-colors">
-                                <i data-lucide="download" class="w-4 h-4"></i> Exportar Limpio
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Diagnostics Summary -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-red-50/60 border border-red-100 p-4 rounded-xl flex items-center justify-between">
-                            <div>
-                                <span class="text-xs text-slate-500 block">Teléfonos Mal Formateados</span>
-                                <span id="diag-bad-phones" class="text-xl font-bold text-red-700">0</span>
-                            </div>
-                            <i data-lucide="phone-off" class="w-8 h-8 text-red-200"></i>
-                        </div>
-                        <div class="bg-amber-50/60 border border-amber-100 p-4 rounded-xl flex items-center justify-between">
-                            <div>
-                                <span class="text-xs text-slate-500 block">Fechas Inconsistentes / Vacías</span>
-                                <span id="diag-bad-dates" class="text-xl font-bold text-amber-700">0</span>
-                            </div>
-                            <i data-lucide="calendar-off" class="w-8 h-8 text-amber-200"></i>
-                        </div>
-                        <div class="bg-blue-50/60 border border-blue-100 p-4 rounded-xl flex items-center justify-between">
-                            <div>
-                                <span class="text-xs text-slate-500 block">Registros Duplicados</span>
-                                <span id="diag-duplicates" class="text-xl font-bold text-blue-700">0</span>
-                            </div>
-                            <i data-lucide="copy" class="w-8 h-8 text-blue-200"></i>
-                        </div>
-                    </div>
-
-                    <!-- Quality Diagnostic Table -->
-                    <div class="border border-slate-100 rounded-xl overflow-hidden">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase">
-                                    <th class="p-4">Cliente</th>
-                                    <th class="p-4">Inconsistencia Detectada</th>
-                                    <th class="p-4">Severidad</th>
-                                    <th class="p-4 text-right">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody id="cleaningDiagnosticTable" class="text-sm divide-y divide-slate-100">
-                                <!-- Populated dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TAB: PORTFOLIO CONTROL -->
-            <section id="tabContent-portfolio" class="tab-content space-y-6 hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                        <div>
-                            <h2 class="text-lg font-bold text-slate-800">Seguimiento de Cartera y Alertas de Vencimiento</h2>
-                            <p class="text-xs text-slate-500">Monitoreo de pagos retrasados, pólizas inactivas y plazos de documentos solicitados.</p>
-                        </div>
-                        <!-- Filters -->
-                        <div class="flex flex-wrap gap-2">
-                            <select id="filterCompany" onchange="applyPortfolioFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium">
-                                <option value="">Todas las Compañías</option>
-                            </select>
-                            <select id="filterPayment" onchange="applyPortfolioFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium">
-                                <option value="">Todos los Estados de Pago</option>
-                                <option value="Pagado">Al día (Pagado)</option>
-                                <option value="Atrasado">Retrasados (Atrasado/Inconsistente)</option>
-                            </select>
-                            <select id="filterDocStatus" onchange="applyPortfolioFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium">
-                                <option value="">Todos los Estatus de Doc.</option>
-                                <option value="Documentos Completos">Completos</option>
-                                <option value="Incompleto">Incompletos</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Portfolio Table -->
-                    <div class="overflow-x-auto custom-scrollbar border border-slate-100 rounded-xl">
-                        <table class="w-full text-left border-collapse min-w-[800px]">
-                            <thead>
-                                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase">
-                                    <th class="p-4">Cliente</th>
-                                    <th class="p-4">Compañía / ID</th>
-                                    <th class="p-4">Estado Pago</th>
-                                    <th class="p-4">Estatus Docs</th>
-                                    <th class="p-4">Límite Documental</th>
-                                    <th class="p-4">Último Seguimiento</th>
-                                    <th class="p-4">Alertas</th>
-                                </tr>
-                            </thead>
-                            <tbody id="portfolioTableBody" class="text-sm divide-y divide-slate-100">
-                                <!-- Populated dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TAB: BEHAVIOR ANALYSIS -->
-            <section id="tabContent-behavior" class="tab-content space-y-6 hidden">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Contact Effectiveness -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 md:col-span-2">
-                        <h2 class="text-base font-bold text-slate-800 mb-2">Efectividad por Canal de Comunicación</h2>
-                        <p class="text-xs text-slate-500 mb-6">Medición del porcentaje de respuesta y contacto positivo (Wazzup vs. Llamada vs. Correo).</p>
-                        
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                            <div class="p-4 rounded-xl border border-emerald-100 bg-emerald-50/50">
-                                <span class="text-xs font-medium text-emerald-800 flex items-center gap-1.5 mb-1">
-                                    <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Wazzup (WhatsApp)
-                                </span>
-                                <h4 id="behavior-wazzup-rate" class="text-2xl font-black text-slate-800">0%</h4>
-                                <p class="text-[10px] text-slate-500">Tasa de respuesta positiva</p>
-                            </div>
-                            <div class="p-4 rounded-xl border border-blue-100 bg-blue-50/50">
-                                <span class="text-xs font-medium text-blue-800 flex items-center gap-1.5 mb-1">
-                                    <i data-lucide="phone" class="w-3.5 h-3.5"></i> Llamadas
-                                </span>
-                                <h4 id="behavior-call-rate" class="text-2xl font-black text-slate-800">0%</h4>
-                                <p class="text-[10px] text-slate-500">Tasa de respuesta positiva</p>
-                            </div>
-                            <div class="p-4 rounded-xl border border-slate-200 bg-slate-100/50">
-                                <span class="text-xs font-medium text-slate-700 flex items-center gap-1.5 mb-1">
-                                    <i data-lucide="mail" class="w-3.5 h-3.5"></i> Otros / Correo
-                                </span>
-                                <h4 id="behavior-other-rate" class="text-2xl font-black text-slate-800">0%</h4>
-                                <p class="text-[10px] text-slate-500">Tasa de respuesta positiva</p>
-                            </div>
-                        </div>
-
-                        <!-- Special / Clinical Cases -->
-                        <h3 class="text-sm font-bold text-slate-700 mb-3">Casos Especiales y Observaciones de Salud</h3>
-                        <div class="space-y-3" id="specialNotesContainer">
-                            <!-- Populated dynamically with extracted cases e.g. down syndrome, pregnancy, chronic diseases -->
-                        </div>
-                    </div>
-
-                    <!-- Channel Preference Chart -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
-                        <div>
-                            <h2 class="text-base font-bold text-slate-800 mb-1">Preferencia de Contacto</h2>
-                            <p class="text-xs text-slate-500 mb-6">Canales favoritos elegidos por los clientes.</p>
-                        </div>
-                        <div class="relative flex-1 min-h-[220px] flex items-center justify-center">
-                            <canvas id="channelPreferenceChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TAB: DECISION SUPPORT -->
+            <!-- TAB: DECISION SUPPORT (PLANES DE ACCIÓN IA PARA CLIENTES EN ROJO) -->
             <section id="tabContent-decisions" class="tab-content space-y-6 hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-rose-200">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                         <div>
-                            <h2 class="text-lg font-bold text-slate-800">Asistente de Priorización y Retención de Clientes</h2>
-                            <p class="text-xs text-slate-500">Matriz inteligente que prioriza clientes con riesgo inminente de cancelación de póliza o pérdida de subsidio.</p>
+                            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i data-lucide="brain" class="text-rose-500 w-5 h-5 animate-bounce"></i> Asistente de Recuperación Activa: Planes de Acción con IA
+                            </h2>
+                            <p class="text-xs text-slate-500">
+                                Genera estrategias de contención y scripts personalizados con IA para salvar la cobertura de tus clientes clasificados en **Riesgo Rojo** (Scoring superior a 60 Puntos).
+                            </p>
                         </div>
-                        <span class="bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full text-xs flex items-center gap-1">
-                            <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Sugerencias de Acción Directa
+                        <span id="decisionTargetCount" class="bg-rose-100 text-rose-800 font-bold px-3 py-1 rounded-full text-xs flex items-center gap-1">
+                            0 Casos Críticos
                         </span>
                     </div>
 
-                    <!-- Client Intervention Cards -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="prioritizedActionCards">
+                    <!-- Red Clients AI Generator Container -->
+                    <div class="space-y-6" id="redClientsActionContainer">
                         <!-- Rendered dynamically -->
                     </div>
                 </div>
             </section>
-
-            <!-- TAB: COMPLIANCE & SECURITY -->
-            <section id="tabContent-compliance" class="tab-content space-y-6 hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                        <div>
-                            <h2 class="text-lg font-bold text-slate-800">Cumplimiento Normativo y Seguridad (Regulaciones ACA)</h2>
-                            <p class="text-xs text-slate-500">Reporte estructurado de ingresos verificados, estatus migratorio y cobertura esencial con control estricto de privacidad.</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="downloadComplianceReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl flex items-center gap-2 transition-colors">
-                                <i data-lucide="file-down" class="w-4 h-4"></i> Generar Reporte Reguladores
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Compliance Stats Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
-                            <span class="text-xs text-slate-500 block mb-1">Membresías con Cobertura Mínima</span>
-                            <span id="compliance-mec-count" class="text-xl font-bold text-slate-800">0</span>
-                        </div>
-                        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
-                            <span class="text-xs text-slate-500 block mb-1">Verificación de Ingresos (Income)</span>
-                            <span id="compliance-income-verified" class="text-xl font-bold text-slate-800">0%</span>
-                        </div>
-                        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
-                            <span class="text-xs text-slate-500 block mb-1">Estatus Migratorio Cargados</span>
-                            <span id="compliance-immigration-count" class="text-xl font-bold text-slate-800">0%</span>
-                        </div>
-                    </div>
-
-                    <!-- Security Info Box -->
-                    <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 flex items-start gap-3 mb-6">
-                        <i data-lucide="shield" class="w-5 h-5 text-blue-600 shrink-0"></i>
-                        <div>
-                            <h5 class="font-bold mb-0.5">Protección de Datos Sensibles Activada</h5>
-                            <p>Toda información PHI (Información Médica Protegida) como el número de Seguro Social (SSN), contraseñas y Member ID, se enmascaran automáticamente bajo los estándares HIPAA al compartir pantalla o proyectar reportes.</p>
-                        </div>
-                    </div>
-
-                    <!-- Secured Data View -->
-                    <div class="overflow-x-auto custom-scrollbar border border-slate-100 rounded-xl">
-                        <table class="w-full text-left border-collapse min-w-[700px]">
-                            <thead>
-                                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase">
-                                    <th class="p-4">Cliente</th>
-                                    <th class="p-4">SSN (Seguro Social)</th>
-                                    <th class="p-4">Usuario Compañía</th>
-                                    <th class="p-4">Contraseña</th>
-                                    <th class="p-4">Requisitos Pendientes</th>
-                                    <th class="p-4">Última Auditoría</th>
-                                </tr>
-                            </thead>
-                            <tbody id="complianceTableBody" class="text-sm divide-y divide-slate-100">
-                                <!-- Populated dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-        </div>
+        </main>
     </div>
 
     <!-- FOOTER -->
     <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 text-center text-xs mt-auto">
-        <p>&copy; 2026 InsureData Agency. Desarrollado para el cumplimiento del mercado de seguros médicos regulados.</p>
+        <p>&copy; 2026 InsureData Agency. Diseñado para el control de cumplimiento y retención inteligente ACA.</p>
     </footer>
 
     <!-- INTERACTION SCRIPTS -->
     <script>
-        // MOCK DATA: Built with the exact properties of the client base provided in user context
+        // MOCK DATA (Se añaden ejemplos reales para disparar el scoring ajustado)
         let clientsData = [
             {
                 "Fecha de efectividad": "2026-01-01",
@@ -625,62 +403,40 @@
                 "Caso especial": "solo habla conmigo",
                 "Nombre": "Saylin Rodriguez Battle",
                 "TelefoNO 1": "6786831410",
-                "TeléfoNO 2": "",
                 "SSN": "230489233",
                 "Aplicantes": "2",
                 "Fecha de nacimiento": "10/18/1990",
-                "Medio de contacto_2": "Wazzup",
-                "Contacto_2": "SI",
                 "Compañia": "Anthem",
                 "Estado en compañia": "Activo",
-                "Fecha de revision de compañia": "2026-12-05",
-                "Member ID": "EGU345W00776",
-                "Usuario en compañia": "saylin90",
-                "Contraseña": "SeguroPassword1",
                 "Prima mensual": "32.09",
                 "Estado del pago": "Pagado",
                 "Pagado hasta": "05/31/2026",
-                "Metodo de pago": "Si",
                 "Documentos Solicitados": "Documentos Completos",
                 "Estado de documentos": "Documentos Completos",
                 "Fecha de plazo documentos": "-",
-                "Nota de documento": "",
-                "Fecha de seguimiento": "2026-12-05",
-                "Observación de seguimiento": "Cliente solicita las tarjetas del seguro, se revisa en compañía y se aprovecha para enviar ID digitales",
-                "Dato especial del cliente": ""
+                "Observación de seguimiento": "Cliente solicita las tarjetas del seguro. Todo en orden y muy conforme."
             },
             {
                 "Fecha de efectividad": "2026-01-01",
                 "Medio de contacto": "Llamada",
                 "Contacto": "NO",
-                "Ultima fecha": "04/15/2025",
+                "Ultima fecha": "04/15/2026",
                 "Evidencia de seguimiento en agente 3,5": "NO",
-                "Caso especial": "La hija Maria es paciente con sindrome de down",
+                "Caso especial": "Independiente 1099.",
                 "Nombre": "Humberto Lopez Ayala",
                 "TelefoNO 1": "6783289472",
-                "TeléfoNO 2": "",
                 "SSN": "349852309",
                 "Aplicantes": "2",
                 "Fecha de nacimiento": "1982-11-04",
-                "Medio de contacto_2": "Llamada",
-                "Contacto_2": "SI",
                 "Compañia": "Florida Blue",
                 "Estado en compañia": "Activo",
-                "Fecha de revision de compañia": "2026-11-12",
-                "Member ID": "FLB84762933",
-                "Usuario en compañia": "humberto_ayala",
-                "Contraseña": "BlueHumberto2",
                 "Prima mensual": "84.50",
                 "Estado del pago": "Atrasado",
                 "Pagado hasta": "03/31/2026",
-                "Metodo de pago": "No",
                 "Documentos Solicitados": "Income",
-                "Estado de documentos": "Incompleto (Income)",
-                "Fecha de plazo documentos": "2026-05-10", 
-                "Nota de documento": "Falta declaración de impuestos actualizada",
-                "Fecha de seguimiento": "2026-05-01",
-                "Observación de seguimiento": "Se llamó, no contesta. Se le dejó buzón solicitando documentos y pago vencido. Lleva muchos días sin responder.",
-                "Dato especial del cliente": "Prefiere llamadas en horas de la tarde."
+                "Estado de documentos": "Incompleto",
+                "Fecha de plazo documentos": "2026-06-10", 
+                "Observación de seguimiento": "Se llamó, no contesta. Se le dejó buzón solicitando documentos. Muchos días sin responder y está muy molesto por cobro."
             },
             {
                 "Fecha de efectividad": "2026-01-05",
@@ -691,29 +447,18 @@
                 "Caso especial": "Cliente en estado de Embarazo",
                 "Nombre": "Valentina Valbuena Mazo",
                 "TelefoNO 1": "9047616782",
-                "TeléfoNO 2": "",
                 "SSN": "290123849",
                 "Aplicantes": "1",
                 "Fecha de nacimiento": "2004-12-02",
-                "Medio de contacto_2": "Llamada y Wazzup",
-                "Contacto_2": "SI",
                 "Compañia": "Ambetter",
                 "Estado en compañia": "Activo",
-                "Fecha de revision de compañia": "05/20/2026",
-                "Member ID": "UZ194096601",
-                "Usuario en compañia": "valenmazo",
-                "Contraseña": "AmbetterVal12",
                 "Prima mensual": "0.00",
                 "Estado del pago": "Pagado",
-                "Pagado hasta": "-",
-                "Metodo de pago": "No",
+                "Pagado hasta": "06/30/2026",
                 "Documentos Solicitados": "Documentos Completos",
                 "Estado de documentos": "Documentos Completos",
                 "Fecha de plazo documentos": "",
-                "Nota de documento": "",
-                "Fecha de seguimiento": "05/20/2026",
-                "Observación de seguimiento": "Cliente solicita con médico primario para ser remitida con médico ginecobstetra",
-                "Dato especial del cliente": ""
+                "Observación de seguimiento": "Cliente solicita cita con médico primario. Excelente trato."
             },
             {
                 "Fecha de efectividad": "2026-01-05",
@@ -724,29 +469,18 @@
                 "Caso especial": "",
                 "Nombre": "Jacqueline Castro Valenzuela",
                 "TelefoNO 1": "4808454295",
-                "TeléfoNO 2": "",
                 "SSN": "490123894",
                 "Aplicantes": "1",
                 "Fecha de nacimiento": "06/23/2004",
-                "Medio de contacto_2": "Wazzup",
-                "Contacto_2": "SI",
                 "Compañia": "UnitedHealthcare",
                 "Estado en compañia": "Activo",
-                "Fecha de revision de compañia": "04/29/2026",
-                "Member ID": "133760062",
-                "Usuario en compañia": "jacque_castro",
-                "Contraseña": "UnitedPassword3",
                 "Prima mensual": "36.85",
-                "Estado del pago": "Pagado",
+                "Estado del pago": "Atrasado",
                 "Pagado hasta": "04/29/2026",
-                "Metodo de pago": "Si",
                 "Documentos Solicitados": "Income",
                 "Estado de documentos": "Incompleto (Income)",
-                "Fecha de plazo documentos": "2026-04-15", 
-                "Nota de documento": "Falta carta de soporte de ingresos",
-                "Fecha de seguimiento": "2026-04-15",
-                "Observación de seguimiento": "Cliente no responde Wazzup desde abril. El cliente dice 'lo estoy pensando' debido al alto costo del servicio.",
-                "Dato especial del cliente": ""
+                "Fecha de plazo documentos": "2026-06-15", 
+                "Observación de seguimiento": "Cliente no responde Wazzup desde abril. El cliente dice lo estoy pensando debido al alto costo de la prima."
             },
             {
                 "Fecha de efectividad": "2026-01-10",
@@ -754,32 +488,21 @@
                 "Contacto": "SI",
                 "Ultima fecha": "05/19/2026",
                 "Evidencia de seguimiento en agente 3,5": "SI",
-                "Caso especial": "Sufre de diabetes tipo II",
+                "Caso especial": "Empleo temporal.",
                 "Nombre": "Yamileidys Herrera Torres",
                 "TelefoNO 1": "5614392813",
-                "TeléfoNO 2": "",
                 "SSN": "392019342",
                 "Aplicantes": "3",
                 "Fecha de nacimiento": "1978-05-15",
-                "Medio de contacto_2": "Wazzup",
-                "Contacto_2": "SI",
                 "Compañia": "Oscar",
                 "Estado en compañia": "Activo",
-                "Fecha de revision de compañia": "2026-04-30",
-                "Member ID": "OSC9405612",
-                "Usuario en compañia": "yamile_herrera",
-                "Contraseña": "OscarPass2026",
                 "Prima mensual": "59.45",
                 "Estado del pago": "Pagado",
                 "Pagado hasta": "04/30/2026",
-                "Metodo de pago": "Si",
                 "Documentos Solicitados": "Estatus Migratorio",
                 "Estado de documentos": "Incompleto (Estatus Migratorio)",
-                "Fecha de plazo documentos": "2026-05-01", 
-                "Nota de documento": "Urgente enviar copia de Residencia o Permiso de Trabajo",
-                "Fecha de seguimiento": "2026-05-19",
-                "Observación de seguimiento": "Se llama cliente ya que tiene dudas sobre el pago del seguro y adicional se envía otras opciones ya que quiere cambiar de plan y comparar ofertas de la competencia",
-                "Dato especial del cliente": "Usa insulina regularmente."
+                "Fecha de plazo documentos": "2026-06-05", 
+                "Observación de seguimiento": "Tiene dudas sobre el pago y quiere cambiar de plan y comparar ofertas de la competencia."
             },
             {
                 "Fecha de efectividad": "2026-02-01",
@@ -790,55 +513,71 @@
                 "Caso especial": "Persona de tercera edad",
                 "Nombre": "Andres Manuel Lopez",
                 "TelefoNO 1": "7864392011",
-                "TeléfoNO 2": "",
                 "SSN": "129034233",
                 "Aplicantes": "1",
                 "Fecha de nacimiento": "1951-08-12",
-                "Medio de contacto_2": "Correo",
-                "Contacto_2": "NO",
                 "Compañia": "Oscar",
                 "Estado en compañia": "Cancelado",
-                "Fecha de revision de compañia": "2026-03-01",
-                "Member ID": "OSC34231",
-                "Usuario en compañia": "andres_m",
-                "Contraseña": "OldPassword!",
                 "Prima mensual": "120.00",
                 "Estado del pago": "Atrasado",
                 "Pagado hasta": "02/28/2026",
-                "Metodo de pago": "No",
                 "Documentos Solicitados": "Documentos Completos",
                 "Estado de documentos": "Documentos Completos",
                 "Fecha de plazo documentos": "",
-                "Nota de documento": "",
-                "Fecha de seguimiento": "2026-03-05",
-                "Observación de seguimiento": "Cancelado por falta de pago. No responde correos de seguimiento. El cliente indica que no usa el seguro.",
-                "Dato especial del cliente": ""
+                "Observación de seguimiento": "Canceló la póliza por falta de pago."
             }
         ];
 
-        // State Control
-        let activeTab = 'dashboard';
+        // System Settings & Variables
         let isPrivacyMode = true;
         let chartInstances = {};
-        const TODAY_DATE = new Date("2026-05-21"); // Anchor actual system date
+        const TODAY_DATE = new Date(); // Fecha dinámica basada en el sistema (hoy real)
+        let activeTab = 'dashboard';
 
-        // Setup initial triggers
+        let fileHeaders = [];
+        let noteCol = "Observación de seguimiento";
+        let nameCol = "Nombre";
+
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+
         window.onload = function() {
             lucide.createIcons();
+            fileHeaders = Object.keys(clientsData[0] || {});
+            
+            const dropzone = document.getElementById('dropzone');
+            if (dropzone) {
+                dropzone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropzone.classList.add('border-sky-500', 'bg-sky-50/70', 'scale-[1.01]');
+                });
+                dropzone.addEventListener('dragleave', () => {
+                    dropzone.classList.remove('border-sky-500', 'bg-sky-50/70', 'scale-[1.01]');
+                });
+                dropzone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropzone.classList.remove('border-sky-500', 'bg-sky-50/70', 'scale-[1.01]');
+                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                        processAnyFile(e.dataTransfer.files[0]);
+                    }
+                });
+            }
+
             initializeDashboard();
         };
 
         function showToast(message, isSuccess = true) {
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toastMessage');
+            if (!toast || !toastMsg) return;
+            
             toastMsg.innerText = message;
             toast.className = `mb-4 p-4 rounded-xl border flex items-center gap-3 animate-fade-in shadow-sm ${
-                isSuccess ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'
+                isSuccess ? 'bg-sky-50 border-sky-200 text-sky-800' : 'bg-red-50 border-red-200 text-red-850'
             }`;
             toast.classList.remove('hidden');
             setTimeout(() => {
                 toast.classList.add('hidden');
-            }, 4000);
+            }, 5000);
         }
 
         function togglePrivacyMode() {
@@ -847,112 +586,103 @@
             const thumb = document.getElementById('securityToggleThumb');
             
             if (isPrivacyMode) {
-                btn.classList.replace('bg-slate-300', 'bg-emerald-500');
+                btn.classList.replace('bg-slate-300', 'bg-sky-500');
                 thumb.classList.replace('translate-x-0', 'translate-x-5');
-                showToast("Estándar HIPAA activado: Datos sensibles ocultos.");
+                showToast("Enmascaramiento HIPAA activado: SSN y cuentas protegidos.");
             } else {
-                btn.classList.replace('bg-emerald-500', 'bg-slate-300');
+                btn.classList.replace('bg-sky-500', 'bg-slate-300');
                 thumb.classList.replace('translate-x-5', 'translate-x-0');
-                showToast("Modo de privacidad desactivado. Precaución al compartir pantalla.", false);
+                showToast("Modo de presentación abierto. Información visible.", false);
             }
-            // Re-render relevant tables and views
-            renderComplianceTable();
-            renderPortfolioTable();
             renderCriticalAlerts();
             renderRiskAnalysis();
+            renderDecisionSupport();
         }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.className = "tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all";
+                btn.className = "tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-sky-50/50 hover:text-sky-900 transition-all";
             });
             
             document.getElementById(`tabContent-${tabId}`).classList.remove('hidden');
             const activeBtn = document.getElementById(`tabBtn-${tabId}`);
-            activeBtn.className = "tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all bg-emerald-500 text-white shadow-sm";
+            activeBtn.className = "tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all bg-sky-500 text-white shadow-md shadow-sky-500/10";
             
             activeTab = tabId;
-            // Force redraw charts on tab switch to avoid sizing issues
             if (tabId === 'dashboard') {
                 updateCharts();
             } else if (tabId === 'risk') {
                 renderRiskAnalysis();
+            } else if (tabId === 'decisions') {
+                renderDecisionSupport();
             }
         }
 
-        // UNIVERSAL FILE HANDLER (Excel and CSV)
         function handleFileSelect(evt) {
             const file = evt.target.files[0];
             if (!file) return;
             processAnyFile(file);
         }
 
-        // Drag & Drop
-        const dropzone = document.getElementById('dropzone');
-        dropzone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropzone.classList.add('border-emerald-500', 'bg-slate-100');
-        });
-        dropzone.addEventListener('dragleave', () => {
-            dropzone.classList.remove('border-emerald-500', 'bg-slate-100');
-        });
-        dropzone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropzone.classList.remove('border-emerald-500', 'bg-slate-100');
-            const file = e.dataTransfer.files[0];
-            if (file) processAnyFile(file);
-        });
-        dropzone.addEventListener('click', () => {
-            document.getElementById('csvFileInput').click();
-        });
-
         function processAnyFile(file) {
             const extension = file.name.split('.').pop().toLowerCase();
+            const reader = new FileReader();
             
             if (extension === 'xlsx' || extension === 'xls') {
-                const reader = new FileReader();
                 reader.onload = function(e) {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const rawRows = XLSX.utils.sheet_to_json(worksheet, {header: 1, defval: ""});
-                    if (rawRows.length > 0) {
-                        normalizeAndLoadRows(rawRows);
-                    } else {
-                        showToast("El archivo Excel importado no contiene filas utilizables.", false);
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        
+                        const rawRows = XLSX.utils.sheet_to_json(worksheet, {header: 1, defval: ""});
+                        if (rawRows.length > 0) {
+                            normalizeAndLoadRows(rawRows);
+                        } else {
+                            showToast("El archivo Excel importado no contiene registros legibles.", false);
+                        }
+                    } catch (err) {
+                        showToast("Error leyendo Excel: " + err.message, false);
                     }
                 };
                 reader.readAsArrayBuffer(file);
             } else {
-                Papa.parse(file, {
-                    header: false,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        if (results.data && results.data.length > 0) {
-                            normalizeAndLoadRows(results.data);
-                        } else {
-                            showToast("El archivo CSV no contiene registros válidos.", false);
+                reader.onload = function(e) {
+                    Papa.parse(e.target.result, {
+                        header: false,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            if (results.data && results.data.length > 0) {
+                                normalizeAndLoadRows(results.data);
+                            } else {
+                                showToast("El archivo CSV cargado está vacío.", false);
+                            }
+                        },
+                        error: function(err) {
+                            showToast("Error al parsear archivo CSV: " + err.message, false);
                         }
-                    },
-                    error: function(err) {
-                        showToast("Error al procesar el archivo CSV: " + err.message, false);
-                    }
-                });
+                    });
+                };
+                reader.readAsText(file, 'UTF-8');
             }
         }
 
-        // EXTRACTOR INTELIGENTE: Escanea y alinea columnas de forma adaptativa
+        function restoreMockData() {
+            window.location.reload();
+        }
+
         function normalizeAndLoadRows(rawRows) {
             let headerRowIdx = 0;
             let foundHeader = false;
             
             for (let r = 0; r < Math.min(12, rawRows.length); r++) {
                 const row = rawRows[r];
+                if (!row) continue;
                 const hasIndicator = row.some(cell => {
-                    const s = String(cell).toLowerCase();
-                    return s.includes("nombre") || s.includes("ssn") || s.includes("compañia") || s.includes("member id") || s.includes("caso especial");
+                    const s = String(cell || "").toLowerCase();
+                    return s.includes("nombre") || s.includes("ssn") || s.includes("compañia") || s.includes("observación") || s.includes("seguimiento");
                 });
                 if (hasIndicator) {
                     headerRowIdx = r;
@@ -961,7 +691,8 @@
                 }
             }
             
-            const headers = rawRows[headerRowIdx].map(h => String(h).trim());
+            const headers = rawRows[headerRowIdx].map(h => String(h || "").trim());
+            fileHeaders = headers;
             const dataRows = rawRows.slice(headerRowIdx + 1);
             
             const indexMapping = {};
@@ -969,7 +700,7 @@
                 const hLower = h.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 if (hLower.includes("nombre")) indexMapping["Nombre"] = idx;
                 else if (hLower.includes("efectividad")) indexMapping["Fecha de efectividad"] = idx;
-                else if (hLower.includes("compañia") || hLower.includes("compania")) indexMapping["Compañia"] = idx;
+                else if (hLower.includes("compañia") || hLower.includes("compania") || hLower.includes("seguro")) indexMapping["Compañia"] = idx;
                 else if (hLower.includes("estado en compañia") || hLower.includes("estado en compania")) indexMapping["Estado en compañia"] = idx;
                 else if (hLower.includes("member") || hLower.includes("miembro")) indexMapping["Member ID"] = idx;
                 else if (hLower.includes("ssn") || hLower.includes("social")) indexMapping["SSN"] = idx;
@@ -978,10 +709,10 @@
                 else if (hLower.includes("prima")) indexMapping["Prima mensual"] = idx;
                 else if (hLower.includes("estado del pago") || hLower.includes("estado de pago")) indexMapping["Estado del pago"] = idx;
                 else if (hLower.includes("pagado hasta")) indexMapping["Pagado hasta"] = idx;
-                else if (hLower.includes("metodo de pago") || hLower.includes("metodo de pago")) indexMapping["Metodo de pago"] = idx;
+                else if (hLower.includes("metodo de pago")) indexMapping["Metodo de pago"] = idx;
                 else if (hLower.includes("documentos solicitados")) indexMapping["Documentos Solicitados"] = idx;
                 else if (hLower.includes("estado de documentos")) indexMapping["Estado de documentos"] = idx;
-                else if (hLower.includes("plazo documentos") || hLower.includes("plazo de documentos")) indexMapping["Fecha de plazo documentos"] = idx;
+                else if (hLower.includes("plazo documentos")) indexMapping["Fecha de plazo documentos"] = idx;
                 else if (hLower.includes("nota de documento")) indexMapping["Nota de documento"] = idx;
                 else if (hLower.includes("fecha de seguimiento")) indexMapping["Fecha de seguimiento"] = idx;
                 else if (hLower.includes("observacion de seguimiento") || hLower.includes("observacion")) indexMapping["Observación de seguimiento"] = idx;
@@ -1013,6 +744,27 @@
                     }
                 }
             });
+
+            // AUTODETECCIÓN DE COMPAÑÍAS (Si no se encontró el header "Compañia")
+            if (indexMapping["Compañia"] === undefined) {
+                const knownCompanies = ['ambetter', 'oscar', 'molina', 'aetna', 'cigna', 'florida blue', 'anthem', 'united', 'uhc', 'kaiser', 'blue cross'];
+                for (let i = 0; i < headers.length; i++) {
+                    let matchCount = 0;
+                    // Escanear las primeras 5 filas de esta columna
+                    for (let r = 0; r < Math.min(5, dataRows.length); r++) {
+                        if (dataRows[r] && dataRows[r][i]) {
+                            const cellVal = String(dataRows[r][i]).toLowerCase();
+                            if (knownCompanies.some(company => cellVal.includes(company))) {
+                                matchCount++;
+                            }
+                        }
+                    }
+                    if (matchCount > 0) {
+                        indexMapping["Compañia"] = i; // Encontramos la columna de aseguradoras por contexto
+                        break;
+                    }
+                }
+            }
             
             const standardKeys = [
                 "Fecha de efectividad", "Medio de contacto", "Contacto", "Ultima fecha",
@@ -1028,11 +780,11 @@
 
             const parsedClients = [];
             dataRows.forEach((row) => {
-                if (row.length === 0 || row.every(cell => String(cell).trim() === "")) return;
+                if (!row || row.length === 0 || row.every(cell => String(cell || "").trim() === "")) return;
                 const client = {};
                 Object.keys(indexMapping).forEach(key => {
                     const colIdx = indexMapping[key];
-                    client[key] = row[colIdx] !== undefined ? String(row[colIdx]).trim() : "";
+                    client[key] = (row[colIdx] !== undefined && row[colIdx] !== null) ? String(row[colIdx]).trim() : "";
                 });
                 
                 standardKeys.forEach(sKey => {
@@ -1045,12 +797,12 @@
             
             if (parsedClients.length > 0) {
                 clientsData = parsedClients;
-                document.getElementById('dataStatusBadge').className = "bg-blue-100 text-blue-800 font-medium px-2 py-0.5 rounded-full flex items-center gap-1";
-                document.getElementById('dataStatusBadge').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Archivo Cargado';
-                showToast(`Se han importado exitosamente ${clientsData.length} asegurados sin omitir registros.`);
+                document.getElementById('dataStatusBadge').className = "bg-sky-100 text-sky-800 font-medium px-2 py-0.5 rounded-full flex items-center gap-1";
+                document.getElementById('dataStatusBadge').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span> Archivo Cargado';
+                showToast(`Se han importado exitosamente ${clientsData.length} asegurados.`);
                 initializeDashboard();
             } else {
-                showToast("No pudimos alinear los datos de tu archivo con nuestra estructura.", false);
+                showToast("No se encontraron coincidencias para alinear la estructura del archivo.", false);
             }
         }
 
@@ -1058,50 +810,46 @@
         function initializeDashboard() {
             calculateKPIs();
             updateCharts();
-            populateFilterOptions();
-            runDiagnostics();
-            renderPortfolioTable();
-            renderBehaviorAnalysis();
-            renderDecisionSupport();
-            renderComplianceTable();
+            populateColumnSelectors();
             renderCriticalAlerts();
             renderTrackingThemes();
             renderRiskAnalysis();
+            renderDecisionSupport();
         }
 
         function calculateKPIs() {
             const total = clientsData.length;
             const active = clientsData.filter(c => getSafeValue(c, "Estado en compañia") === "Activo").length;
-            const paid = clientsData.filter(c => getSafeValue(c, "Estado del pago") === "Pagado").length;
             const incompleteDocs = clientsData.filter(c => {
                 const docSt = getSafeValue(c, "Estado de documentos");
                 return docSt.toLowerCase().includes('incompleto');
             }).length;
 
-            const contactsTried = clientsData.filter(c => getSafeValue(c, "Medio de contacto")).length;
-            const contactedSuccess = clientsData.filter(c => {
-                const c1 = getSafeValue(c, "Contacto").toUpperCase();
-                const c2 = getSafeValue(c, "Contacto_2").toUpperCase();
-                return c1 === "SI" || c2 === "SI";
-            }).length;
-            const responseRate = contactsTried > 0 ? Math.round((contactedSuccess / contactsTried) * 100) : 0;
+            let rojoCount = 0;
+            let unpaidCount = 0;
 
-            const clientsWithNotes = clientsData.filter(c => getSafeValue(c, "Observación de seguimiento") !== "").length;
-            const notesPercentage = total > 0 ? Math.round((clientsWithNotes / total) * 100) : 0;
+            clientsData.forEach(c => {
+                const parsed = scanClientRisk(c);
+                if (parsed.score >= 61) {
+                    rojoCount++;
+                }
+                
+                const pagadoHastaStr = getSafeValue(c, "Pagado hasta");
+                const paidUntil = parseFlexibleDate(pagadoHastaStr);
+                const isPaid = (paidUntil && isValidDate(paidUntil) && paidUntil >= TODAY_DATE) || getSafeValue(c, "Estado del pago").toLowerCase() === "pagado";
+                if (!isPaid && getSafeValue(c, "Estado en compañia").toLowerCase() === "activo") unpaidCount++;
+            });
 
-            const criticalAlertsList = calculateCriticalAlertsData();
+            const paidClients = active - unpaidCount;
 
             document.getElementById('kpi-active-clients').innerText = active;
             document.getElementById('kpi-total-clients').innerText = `${total} Clientes Registrados`;
-            document.getElementById('kpi-paid-percentage').innerText = total > 0 ? `${Math.round((paid / total) * 100)}%` : '0%';
-            document.getElementById('kpi-unpaid-count').innerText = `${total - paid} Clientes con Pago Pendiente`;
+            document.getElementById('kpi-paid-percentage').innerText = active > 0 ? `${Math.round((paidClients / active) * 100)}%` : '0%';
+            document.getElementById('kpi-unpaid-count').innerText = `${unpaidCount} Activos con mora`;
             document.getElementById('kpi-docs-incomplete').innerText = incompleteDocs;
-            document.getElementById('kpi-docs-warning').innerText = `${incompleteDocs} Requieren requerimiento ACA`;
-            document.getElementById('kpi-response-rate').innerText = `${responseRate}%`;
-            
-            document.getElementById('kpi-notes-count').innerText = clientsWithNotes;
-            document.getElementById('kpi-notes-ratio').innerText = `${notesPercentage}% cobertura de notas`;
-            document.getElementById('kpi-critical-alerts').innerText = criticalAlertsList.length;
+            document.getElementById('kpi-docs-warning').innerText = `${incompleteDocs} Pendientes de soporte`;
+            document.getElementById('kpi-critical-alerts').innerText = rojoCount;
+            document.getElementById('unpaidBadge').innerText = rojoCount;
         }
 
         function getSafeValue(row, possibleHeaderName) {
@@ -1111,39 +859,78 @@
             return foundKey ? String(row[foundKey]).trim() : '';
         }
 
+        function isValidDate(d) {
+            return d instanceof Date && !isNaN(d.getTime());
+        }
+
         function parseFlexibleDate(dateStr) {
-            if (!dateStr || dateStr === "-" || dateStr === "" || dateStr === "null") return null;
+            if (!dateStr || dateStr === "-" || dateStr === "" || dateStr === "null" || dateStr === undefined) return null;
+            dateStr = String(dateStr).trim();
+            
             let parts = dateStr.split(/[-/]/);
             if (parts.length === 3) {
-                if (parts[0].length === 4) {
-                    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-                }
-                if (parts[2].length === 4) {
-                    return new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
+                let p0 = parseInt(parts[0], 10);
+                let p1 = parseInt(parts[1], 10);
+                let p2 = parseInt(parts[2], 10);
+                
+                if (!isNaN(p0) && !isNaN(p1) && !isNaN(p2)) {
+                    if (parts[0].length === 4) {
+                        return new Date(p0, p1 - 1, p2);
+                    }
+                    if (parts[2].length === 4) {
+                        let month = p0;
+                        let day = p1;
+                        let year = p2;
+                        
+                        if (month > 12) {
+                            month = p1;
+                            day = p0;
+                        }
+                        return new Date(year, month - 1, day);
+                    }
                 }
             }
             let parsed = Date.parse(dateStr);
             return isNaN(parsed) ? null : new Date(parsed);
         }
 
-        // --- CÁLCULO DE ALERTAS CRÍTICAS ---
+        function calculateAgeFraction(birthdate, referenceDate) {
+            if (!isValidDate(birthdate)) return 0;
+            let years = referenceDate.getFullYear() - birthdate.getFullYear();
+            let months = referenceDate.getMonth() - birthdate.getMonth();
+            let days = referenceDate.getDate() - birthdate.getDate();
+            
+            let totalMonths = years * 12 + months;
+            if (days < 0) {
+                totalMonths -= 1; 
+            }
+            return totalMonths / 12;
+        }
+
         function calculateCriticalAlertsData() {
             const criticalAlerts = [];
             clientsData.forEach((c, idx) => {
+                if (getSafeValue(c, "Estado en compañia").toLowerCase() !== "activo") return;
+
                 const deadlineStr = getSafeValue(c, "Fecha de plazo documentos");
                 const deadline = parseFlexibleDate(deadlineStr);
-                const contactStatus = getSafeValue(c, "Contacto").toUpperCase() || getSafeValue(c, "Contacto_2").toUpperCase();
+                const textToScan = ((getSafeValue(c, "Observación de seguimiento") + " " + getSafeValue(c, "Caso especial"))).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 
-                if (deadline && deadline < TODAY_DATE) {
+                const contact1 = getSafeValue(c, "Contacto").toUpperCase();
+                const isUncontactable = (contact1 === "NO" || textToScan.match(/no contesta|no responde|buzon|buzón/));
+                
+                if (deadline && isValidDate(deadline)) {
+                    // Positivo = Atrasado. Negativo = En el futuro (Faltan días)
                     const daysOverdue = Math.floor((TODAY_DATE - deadline) / (1000 * 60 * 60 * 24));
                     const segDateStr = getSafeValue(c, "Fecha de seguimiento");
                     const segDate = parseFlexibleDate(segDateStr);
                     let daysSinceFollowup = Infinity;
-                    if (segDate) {
+                    if (segDate && isValidDate(segDate)) {
                         daysSinceFollowup = Math.floor((TODAY_DATE - segDate) / (1000 * 60 * 60 * 24));
                     }
 
-                    if (contactStatus.includes("NO") || daysOverdue > 0 || (daysSinceFollowup !== Infinity && daysSinceFollowup > 10)) {
+                    // Se marca urgente si ya venció O si vence en 15 días o menos (daysOverdue > -15), o si es incontactable
+                    if (isUncontactable || daysOverdue > -15) {
                         criticalAlerts.push({
                             client: c,
                             idx: idx,
@@ -1164,7 +951,7 @@
             tbody.innerHTML = '';
 
             if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Excelente. No se identifican clientes en estado crítico de vencimiento sin respuesta.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Excelente. No se identifican clientes activos en estado crítico de documentos.</td></tr>`;
                 return;
             }
 
@@ -1173,19 +960,28 @@
                 const phone = getSafeValue(item.client, "TelefoNO 1");
                 const company = getSafeValue(item.client, "Compañia");
                 
-                const rescueMessage = `Hola ${nombre}, le escribimos con carácter URGENTE de la agencia de seguros médicos. Su plazo para presentar el documento (${item.document}) para su póliza con ${company} venció hace ${item.daysOverdue} días. Corre el riesgo inminente de perder su subsidio y cobertura médica. Por favor, contáctenos respondiendo este mensaje de inmediato.`;
+                const rescueMessage = `Hola ${nombre}, le escribimos con carácter de urgencia. Su plazo para presentar el documento (${item.document}) para su póliza con ${company} vence pronto o ya venció. Corre el riesgo de perder su cobertura médica. Contáctenos de inmediato.`;
                 const encodedMsg = encodeURIComponent(rescueMessage);
                 const waLink = `https://api.whatsapp.com/send?phone=1${phone.replace(/\D/g,'')}&text=${encodedMsg}`;
 
+                let atrasoHTML = "";
+                if (item.daysOverdue > 0) {
+                    atrasoHTML = `<span class="text-xs text-rose-600 font-bold bg-rose-100 px-2.5 py-1 rounded-full">Atrasado ${item.daysOverdue} días</span>`;
+                } else if (item.daysOverdue === 0) {
+                    atrasoHTML = `<span class="text-xs text-rose-600 font-bold bg-rose-100 px-2.5 py-1 rounded-full">Vence Hoy</span>`;
+                } else {
+                    atrasoHTML = `<span class="text-xs text-amber-600 font-bold bg-amber-100 px-2.5 py-1 rounded-full">Vence en ${Math.abs(item.daysOverdue)} días</span>`;
+                }
+
                 tbody.innerHTML += `
-                    <tr class="hover:bg-red-50/40 transition-colors">
+                    <tr class="hover:bg-rose-50/40 transition-colors">
                         <td class="p-3 font-semibold text-slate-800">${nombre}</td>
                         <td class="p-3">
                             <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">${item.document}</span>
                         </td>
                         <td class="p-3 font-medium text-slate-600">${getSafeValue(item.client, "Fecha de plazo documentos")}</td>
                         <td class="p-3">
-                            <span class="text-xs text-red-600 font-bold bg-red-100 px-2.5 py-1 rounded-full">+${item.daysOverdue} días vencido</span>
+                            ${atrasoHTML}
                         </td>
                         <td class="p-3 text-xs text-slate-500">
                             Hace ${item.daysSinceFollowup} días
@@ -1206,9 +1002,9 @@
             lucide.createIcons();
         }
 
-        // --- ANÁLISIS DE TEMAS DE SEGUIMIENTO ---
         function renderTrackingThemes() {
             const container = document.getElementById('trackingThemesContainer');
+            if (!container) return;
             container.innerHTML = '';
 
             let tarjetaCount = 0;
@@ -1219,13 +1015,13 @@
             clientsData.forEach(c => {
                 const note = getSafeValue(c, "Observación de seguimiento").toLowerCase();
                 if (note.includes("tarjeta") || note.includes("tarjetas") || note.includes("id")) tarjetaCount++;
-                if (note.includes("pago") || note.includes("prima") || note.includes("dinero")) pagoCount++;
-                if (note.includes("duda") || note.includes("pregunta") || note.includes("opciones")) dudasCount++;
-                if (note.includes("medico") || note.includes("médico") || note.includes("ginecobstetra") || note.includes("salud")) medicoCount++;
+                if (note.includes("pago") || note.includes("prima") || note.includes("dinero") || note.includes("cobro")) pagoCount++;
+                if (note.includes("duda") || note.includes("pregunta") || note.includes("opciones") || note.includes("comparar")) dudasCount++;
+                if (note.includes("medico") || note.includes("médico") || note.includes("ginecobstetra") || note.includes("salud") || note.includes("ginecologo")) medicoCount++;
             });
 
             const themes = [
-                { title: "Tarjetas / IDs", count: tarjetaCount, icon: "credit-card", bg: "bg-blue-50/80 border-blue-200 text-blue-800" },
+                { title: "Tarjetas / IDs", count: tarjetaCount, icon: "credit-card", bg: "bg-sky-50/80 border-sky-200 text-sky-800" },
                 { title: "Pagos / Primas", count: pagoCount, icon: "badge-dollar-sign", bg: "bg-emerald-50/80 border-emerald-200 text-emerald-800" },
                 { title: "Dudas / Consultas", count: dudasCount, icon: "help-circle", bg: "bg-purple-50/80 border-purple-200 text-purple-800" },
                 { title: "Remisión Médica", count: medicoCount, icon: "stethoscope", bg: "bg-amber-50/80 border-amber-200 text-amber-800" }
@@ -1245,51 +1041,333 @@
             lucide.createIcons();
         }
 
-        // --- ALGORITMO SENSORIAL DEL RIESGO (NUEVO REQUERIMIENTO) ---
-        function scanClientRisk(c) {
-            const notes = (getSafeValue(c, "Observación de seguimiento") + " " + 
-                           getSafeValue(c, "Caso especial") + " " + 
-                           getSafeValue(c, "Dato especial del cliente")).toLowerCase();
+        function populateColumnSelectors() {
+            const noteSelect = document.getElementById('aiNoteColSelect');
+            const nameSelect = document.getElementById('aiNameColSelect');
+            if (!noteSelect || !nameSelect) return;
+
+            noteSelect.innerHTML = '<option value="">— Seleccionar columna de notas —</option>';
+            nameSelect.innerHTML = '<option value="">— Seleccionar columna de nombres —</option>';
+
+            const keys = new Set();
+            clientsData.forEach(c => {
+                Object.keys(c).forEach(k => keys.add(k));
+            });
+            const sortedKeys = Array.from(keys).sort();
+
+            sortedKeys.forEach(k => {
+                noteSelect.innerHTML += `<option value="${k}">${k}</option>`;
+                nameSelect.innerHTML += `<option value="${k}">${k}</option>`;
+            });
+
+            const bestNoteKey = sortedKeys.find(k => k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes("observacion") || k.toLowerCase().includes("nota"));
+            const bestNameKey = sortedKeys.find(k => k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes("nombre"));
+
+            if (bestNoteKey) {
+                noteSelect.value = bestNoteKey;
+                noteCol = bestNoteKey;
+            }
+            if (bestNameKey) {
+                nameSelect.value = bestNameKey;
+                nameCol = bestNameKey;
+            }
+        }
+
+        function updateNoteColSelection() {
+            noteCol = document.getElementById('aiNoteColSelect').value;
+        }
+
+        function updateNameColSelection() {
+            nameCol = document.getElementById('aiNameColSelect').value;
+        }
+
+        // --- NEW PREDICTIVE ALGORITHM SYSTEM (THE 4 MATRICES SCORING) ---
+        function calculatePredictiveRiskScore(c) {
+            let score = 0;
+            const indicators = [];
+            const breakdown = []; // Almacena la explicación matemática para el asesor
+
+            function addScore(points, simpleReason) {
+                score += points;
+                indicators.push(simpleReason);
+                breakdown.push(`+${points} pts: ${simpleReason}`);
+            }
+
+            // Excluir cancelados del cálculo progresivo
+            const compState = (getSafeValue(c, "Estado en compañia") || "").toLowerCase();
+            if (compState.includes("cancelad") || compState.includes("inactiv")) {
+                return {
+                    score: 100, label: "ROJO", displayLevel: "Cancelación",
+                    indicators: "Póliza Cancelada / Inactiva", breakdown: ["100 pts: El cliente ya canceló su póliza o está inactivo."]
+                };
+            }
+
+            // MATRIZ 1: Criterios de Riesgo Operativo y Administrativo
+            const docStatus = (getSafeValue(c, "Estado de documentos") || "").toLowerCase();
+            const docPlazo = getSafeValue(c, "Fecha de plazo documentos");
+            const deadline = parseFlexibleDate(docPlazo);
             
-            const contactState = getSafeValue(c, "Contacto").toUpperCase();
-            const contactState2 = getSafeValue(c, "Contacto_2").toUpperCase();
-            const payStatus = getSafeValue(c, "Estado del pago");
-            const docStatus = getSafeValue(c, "Estado de documentos").toLowerCase();
-
-            let score = "VERDE";
-            let reasonCategory = "Ninguno";
-            let matchedText = "Cliente estable en el histórico de pólizas.";
-
-            // 1. EVALUAR NIVEL DE RIESGO
-            // Criterios Rojo: "lo estoy pensando", no contesta/no responde, quejas/reclamación, dudas del servicio
-            const rojoKeywords = ["lo estoy pensando", "lo piense", "no responde", "no contesta", "buzon", "queja", "reclamacion", "reclamo", "duda sobre el pago", "cancelar", "insatisfaccion", "muchos dias sin responder"];
-            const isUnresponsive = contactState.includes("NO") || contactState2.includes("NO");
-            const hasRojoText = rojoKeywords.some(kw => notes.includes(kw));
-
-            // Criterios Amarillo: "otras opciones", "caro", "costoso", "prima", demora renovación o renovación tarde
-            const amarilloKeywords = ["opciones", "cambiar", "costoso", "caro", "prima", "revisando", "evaluando", "tarde", "demorado", "comparar"];
-            const hasAmarilloText = amarilloKeywords.some(kw => notes.includes(kw));
-
-            if (hasRojoText || isUnresponsive || payStatus === "Atrasado") {
-                score = "ROJO";
-                matchedText = "Se detectó falta de respuesta prolongada, dudas de continuidad de la póliza o mora en el pago de primas.";
-            } else if (hasAmarilloText || docStatus.includes("incompleto")) {
-                score = "AMARILLO";
-                matchedText = "El asegurado se encuentra evaluando otras alternativas o ha manifestado dudas financieras de la prima.";
+            // 1.1 Documentos
+            if (docStatus.includes("incompleto") || docStatus.includes("pendient")) {
+                if (deadline && isValidDate(deadline)) {
+                    const daysRemaining = Math.ceil((deadline - TODAY_DATE) / (1000 * 60 * 60 * 24));
+                    if (daysRemaining < 30) {
+                        addScore(30, "Documentos urgentes (Vencen en menos de 30 días)");
+                    } else {
+                        addScore(15, "Faltan documentos por entregar (No urgente aún)");
+                    }
+                } else {
+                    addScore(15, "Tiene documentos pendientes en el Mercado");
+                }
             }
 
-            // 2. DATA TAGGING (Categorización del Motivo de Riesgo)
-            if (notes.includes("caro") || notes.includes("costoso") || notes.includes("prima") || notes.includes("pago") || notes.includes("tarifa") || notes.includes("presupuesto")) {
-                reasonCategory = "Precio";
-            } else if (notes.includes("queja") || notes.includes("reclamacion") || notes.includes("reclamo") || notes.includes("malo") || notes.includes("atencion") || notes.includes("tarjeta")) {
-                reasonCategory = "Servicio / Insatisfacción";
-            } else if (notes.includes("no usa") || notes.includes("no utiliza") || notes.includes("falta de uso") || notes.includes("sin usar")) {
-                reasonCategory = "Falta de uso";
-            } else if (notes.includes("opciones") || notes.includes("cambiar de plan") || notes.includes("cambiar") || notes.includes("otra aseguradora") || notes.includes("competencia") || notes.includes("oferta")) {
-                reasonCategory = "Competencia";
+            // 1.2 Facturación y Pagos
+            const payStatus = (getSafeValue(c, "Estado del pago") || "").toLowerCase();
+            const observation = ((getSafeValue(c, "Observación de seguimiento") || "") + " " + (getSafeValue(c, "Caso especial") || "")).toLowerCase();
+            
+            const pagadoHastaStr = getSafeValue(c, "Pagado hasta");
+            const paidUntil = parseFlexibleDate(pagadoHastaStr);
+            let daysLate = 0;
+            if (paidUntil && isValidDate(paidUntil)) {
+                daysLate = Math.ceil((TODAY_DATE - paidUntil) / (1000 * 60 * 60 * 24));
             }
 
-            return { score, reasonCategory, matchedText };
+            if (payStatus === "atrasado" || daysLate > 0 || observation.includes("vencido") || observation.includes("falta de pago")) {
+                if (daysLate >= 45 || observation.includes("muchos días") || observation.includes("molesto por cobro")) {
+                    addScore(30, "Pago muy atrasado (Peligro inminente de cancelación)");
+                } else {
+                    addScore(15, "Debe 1 mes de pago al seguro");
+                }
+            }
+
+            // 1.3 Competencia y Agente
+            if (observation.includes("competencia") || observation.includes("cambiar") || observation.includes("ofertas") || observation.includes("comparar")) {
+                addScore(30, "El cliente quiere irse con otra agencia o comparar precios");
+            }
+
+            // MATRIZ 2: Riesgo Financiero
+            // 2.1 Ingresos inestables
+            if (observation.includes("1099") || observation.includes("independiente") || observation.includes("desempleado")) {
+                addScore(15, "Trabajador independiente (Ingresos inestables / Miedo al IRS)");
+            }
+            // 2.2 Riesgo Medicaid
+            const monthlyPremium = parseFloat(getSafeValue(c, "Prima mensual")) || 0;
+            if (monthlyPremium === 0.00 && docStatus.includes("incompleto")) {
+                addScore(20, "Paga $0 de prima mensual (Riesgo alto de pasar a Medicaid)");
+            }
+
+            // MATRIZ 3: Ciclo de Vida Demográfico
+            // 3.1 Edad Crítica (Medicare)
+            const dobStr = getSafeValue(c, "Fecha de nacimiento");
+            const birthdate = parseFlexibleDate(dobStr);
+            if (birthdate && isValidDate(birthdate)) {
+                const ageFraction = calculateAgeFraction(birthdate, TODAY_DATE);
+                if (ageFraction >= 64.5) {
+                    addScore(30, "Cumple 65 años pronto (Tendrá que pasar a Medicare)");
+                }
+            }
+            // 3.2 Riesgo de Mudanza
+            if (observation.includes("temporal") || docStatus.includes("migratorio") || observation.includes("mudanza") || observation.includes("asilo") || observation.includes("permiso")) {
+                addScore(15, "Estatus temporal en EE.UU. (Alta probabilidad de mudarse o salir)");
+            }
+
+            // MATRIZ 4: Interacción y Servicio
+            // 4.1 Imposibilidad de contacto
+            const contact1 = (getSafeValue(c, "Contacto") || "").toUpperCase();
+            const contact2 = (getSafeValue(c, "Contacto_2") || "").toUpperCase();
+            if ((contact1 === "NO" && contact2 === "NO") || observation.includes("no contesta") || observation.includes("buzon") || observation.includes("no responde")) {
+                addScore(25, "Imposible de contactar (Ignora mensajes y llamadas)");
+            }
+            // 4.2 Quejas
+            if (observation.includes("tarjeta") || observation.includes("queja") || observation.includes("mal servicio") || observation.includes("no han recibido")) {
+                addScore(20, "Problemas de servicio (No tiene tarjetas o tiene quejas)");
+            }
+
+            // Limitar puntuación máxima a 100
+            const finalScore = Math.min(100, score);
+            
+            let label = "VERDE";
+            let displayLevel = "Riesgo Bajo";
+            if (finalScore >= 61) {
+                label = "ROJO";
+                displayLevel = "Riesgo Alto (Rescate)";
+            } else if (finalScore >= 26) {
+                label = "AMARILLO";
+                displayLevel = "Riesgo Medio";
+            }
+
+            return {
+                score: finalScore,
+                label: label,
+                displayLevel: displayLevel,
+                indicators: indicators.length > 0 ? indicators.join(" • ") : "Cliente al día y sin riesgos",
+                breakdown: breakdown.length > 0 ? breakdown : ["0 pts: Cliente saludable y sin alertas detectadas."]
+            };
+        }
+
+        // COGNITIVE SEMANTIC DETECTOR (Fallbacks and AI states)
+        function scanClientRisk(c) {
+            const proactiveResult = calculatePredictiveRiskScore(c);
+            
+            if (c["AI_Analizado"] === true) {
+                return {
+                    score: proactiveResult.score,
+                    label: proactiveResult.score >= 61 ? "ROJO" : (proactiveResult.score >= 26 ? "AMARILLO" : "VERDE"), 
+                    reasonCategory: detectReasonCategoryFromText(c["AI_Resumen"] + " " + c["AI_Accion"]),
+                    matchedText: c["AI_Resumen"],
+                    indicators: proactiveResult.indicators,
+                    breakdown: proactiveResult.breakdown
+                };
+            }
+
+            return {
+                score: proactiveResult.score,
+                label: proactiveResult.label,
+                reasonCategory: "Evaluado",
+                matchedText: "Evaluación paramétrica completada.",
+                indicators: proactiveResult.indicators,
+                breakdown: proactiveResult.breakdown
+            };
+        }
+
+        function detectReasonCategoryFromText(text) {
+            const notes = text.toLowerCase();
+            if (notes.includes("caro") || notes.includes("costoso") || notes.includes("prima") || notes.includes("pago") || notes.includes("tarifa") || notes.includes("presupuesto") || notes.includes("precio")) {
+                return "Precio";
+            } else if (notes.includes("queja") || notes.includes("reclamacion") || notes.includes("reclamo") || notes.includes("malo") || notes.includes("atencion") || notes.includes("tarjeta") || notes.includes("servicio")) {
+                return "Servicio / Insatisfacción";
+            } else if (notes.includes("no usa") || notes.includes("no utiliza") || notes.includes("falta de uso") || notes.includes("sin usar") || notes.includes("cancelado")) {
+                return "Falta de uso";
+            } else if (notes.includes("opciones") || notes.includes("cambiar") || notes.includes("competencia") || notes.includes("comparar")) {
+                return "Competencia";
+            }
+            return "Ninguno";
+        }
+
+        // --- CONCURRENT WORKER SYSTEM FOR GENERAL SCANNING ---
+        async function runAIPredictions() {
+            const total = clientsData.length;
+            if (total === 0) {
+                showToast("No hay asegurados cargados.", false);
+                return;
+            }
+
+            const btn = document.querySelector('button[onclick="runAIPredictions()"]');
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const progressContainer = document.getElementById('aiProgressBarContainer');
+            progressContainer.classList.remove('hidden');
+
+            const statusText = document.getElementById('aiProgressStatus');
+            const percentText = document.getElementById('aiProgressPercentage');
+            const fillBar = document.getElementById('aiProgressBarFill');
+            const detailsText = document.getElementById('aiProgressDetails');
+
+            statusText.innerText = "Preparando conexiones paralelas con Gemini...";
+            percentText.innerText = "0%";
+            fillBar.style.width = "0%";
+            detailsText.innerText = `Procesados: 0 / ${total} asegurados.`;
+
+            let completedCount = 0;
+            const queue = [...clientsData.keys()];
+            const CONCURRENCY_LIMIT = 4;
+
+            const worker = async () => {
+                while (queue.length > 0) {
+                    const idx = queue.shift();
+                    if (idx === undefined) break;
+
+                    const client = clientsData[idx];
+                    const note = getSafeValue(client, noteCol) || "";
+
+                    statusText.innerText = `Evaluando: ${getSafeValue(client, nameCol) || 'Asegurado ' + (idx + 1)}...`;
+
+                    const analysis = await analyzeNoteWithGemini(note);
+
+                    client["AI_Analizado"] = true;
+                    // IA enriquece el resumen pero el Risk Label final es matemático
+                    client["AI_Clasificacion"] = analysis.clasificacion; 
+                    client["AI_Riesgo"] = analysis.riesgo;
+                    client["AI_Resumen"] = analysis.resumen;
+                    client["AI_Accion"] = analysis.accion;
+
+                    completedCount++;
+                    const pct = Math.round((completedCount / total) * 100);
+                    percentText.innerText = `${pct}%`;
+                    fillBar.style.width = `${pct}%`;
+                    detailsText.innerText = `Procesados: ${completedCount} / ${total} asegurados.`;
+                }
+            };
+
+            const workers = Array(Math.min(CONCURRENCY_LIMIT, total))
+                .fill(null)
+                .map(() => worker());
+
+            await Promise.all(workers);
+
+            statusText.innerText = "Análisis Predictivo Finalizado.";
+            showToast(`Se han clasificado semánticamente ${total} asegurados.`);
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            initializeDashboard();
+        }
+
+        async function analyzeNoteWithGemini(note, retries = 3) {
+            const apiKey = ""; 
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const systemPrompt = `Eres un Analista Experto en Retención de Clientes para Seguros Médicos. Clasifica la nota y responde con JSON:
+            {
+                "clasificacion": "VERDE" | "AMARILLO" | "ROJO",
+                "riesgo": "Bajo" | "Moderado" | "Alto",
+                "resumen": "Por qué está en riesgo en 1 linea",
+                "accion": "Acción directa"
+            }`;
+
+            const payload = {
+                contents: [{ parts: [{ text: `Nota del cliente a evaluar: "${note}"` }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            clasificacion: { type: "STRING" },
+                            riesgo: { type: "STRING" },
+                            resumen: { type: "STRING" },
+                            accion: { type: "STRING" }
+                        },
+                        required: ["clasificacion", "riesgo", "resumen", "accion"]
+                    }
+                }
+            };
+
+            let currentDelay = 1000;
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const res = await fetch(endpoint, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const data = await res.json();
+                    return JSON.parse(data.candidates?.[0]?.content?.parts?.[0]?.text.trim());
+                } catch (e) {
+                    if (i === retries - 1) {
+                        return {
+                            clasificacion: "AMARILLO",
+                            riesgo: "Moderado",
+                            resumen: "Análisis básico de respaldo.",
+                            accion: "Contactar de inmediato."
+                        };
+                    }
+                    await delay(currentDelay);
+                    currentDelay *= 2;
+                }
+            }
         }
 
         function filterRiskAnalysis() {
@@ -1298,10 +1376,10 @@
 
         function renderRiskAnalysis() {
             const tbody = document.getElementById('riskTableBody');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
             const selectedRisk = document.getElementById('riskFilterLevel').value;
-            const selectedCategory = document.getElementById('riskFilterCategory').value;
 
             let rojoCount = 0;
             let amarilloCount = 0;
@@ -1311,56 +1389,34 @@
                 const analysis = scanClientRisk(c);
                 const nombre = getSafeValue(c, "Nombre");
                 const company = getSafeValue(c, "Compañia");
-                const phone = getSafeValue(c, "TelefoNO 1");
-                const originalNote = getSafeValue(c, "Observación de seguimiento") || "Sin comentarios registrados.";
+                
+                if (analysis.label === "ROJO") rojoCount++;
+                if (analysis.label === "AMARILLO") amarilloCount++;
+                if (analysis.label === "VERDE") verdeCount++;
 
-                if (analysis.score === "ROJO") rojoCount++;
-                if (analysis.score === "AMARILLO") amarilloCount++;
-                if (analysis.score === "VERDE") verdeCount++;
+                if (selectedRisk && analysis.label !== selectedRisk) return;
 
-                // Apply Filters
-                if (selectedRisk && analysis.score !== selectedRisk) return;
-                if (selectedCategory && analysis.reasonCategory !== selectedCategory) return;
-
-                // Build Badges
                 let scoreBadge = `<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-black flex items-center gap-1.5 w-max">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> VERDE
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> VERDE (Bajo)
                 </span>`;
-                if (analysis.score === "ROJO") {
+                if (analysis.label === "ROJO") {
                     scoreBadge = `<span class="bg-red-100 text-red-800 px-2.5 py-1 rounded-full text-xs font-black flex items-center gap-1.5 w-max animate-pulse">
                         <span class="w-2 h-2 rounded-full bg-red-600"></span> ROJO (Alto)
                     </span>`;
-                } else if (analysis.score === "AMARILLO") {
+                } else if (analysis.label === "AMARILLO") {
                     scoreBadge = `<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-black flex items-center gap-1.5 w-max">
-                        <span class="w-2 h-2 rounded-full bg-amber-500"></span> AMARILLO
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span> AMARILLO (Medio)
                     </span>`;
                 }
 
-                let catBadge = `<span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-xs font-semibold">${analysis.reasonCategory}</span>`;
-                if (analysis.reasonCategory === "Precio") {
-                    catBadge = `<span class="bg-rose-50 text-rose-700 border border-rose-100 px-2.5 py-1 rounded-md text-xs font-bold">Precio</span>`;
-                } else if (analysis.reasonCategory === "Servicio / Insatisfacción") {
-                    catBadge = `<span class="bg-orange-50 text-orange-700 border border-orange-100 px-2.5 py-1 rounded-md text-xs font-bold">Servicio</span>`;
-                } else if (analysis.reasonCategory === "Falta de uso") {
-                    catBadge = `<span class="bg-indigo-50 text-indigo-700 border border-indigo-100 px-2.5 py-1 rounded-md text-xs font-bold">Faltante de Uso</span>`;
-                } else if (analysis.reasonCategory === "Competencia") {
-                    catBadge = `<span class="bg-purple-50 text-purple-700 border border-purple-100 px-2.5 py-1 rounded-md text-xs font-bold">Competencia</span>`;
-                }
+                let scoreColor = "text-emerald-600";
+                if (analysis.score >= 61) scoreColor = "text-rose-600";
+                else if (analysis.score >= 26) scoreColor = "text-amber-500";
 
-                // Genera plantillas preventivas ajustadas al semáforo de riesgo
-                let recoveryMsg = "";
-                if (analysis.reasonCategory === "Precio") {
-                    recoveryMsg = `Hola ${nombre}, sabemos que cuidar el presupuesto familiar es importante. Contamos con opciones de planes ACA para reevaluar sus subsidios de salud con ${company} y ajustar su prima. ¿Le agendamos una llamada de revisión hoy?`;
-                } else if (analysis.reasonCategory === "Servicio / Insatisfacción") {
-                    recoveryMsg = `Hola ${nombre}, lamentamos los inconvenientes descritos en su trámite. Queremos brindarle una atención VIP directa para solucionar sus dudas y asegurar que tenga sus tarjetas físicas de ${company}. ¿Cuándo podemos comunicarnos?`;
-                } else if (analysis.reasonCategory === "Competencia") {
-                    recoveryMsg = `Hola ${nombre}, identificamos que busca alternativas para su cobertura médica. Antes de tomar una decisión con otra aseguradora, permítanos enseñarle los nuevos beneficios exclusivos que podemos configurar para usted con el Marketplace.`;
-                } else {
-                    recoveryMsg = `Hola ${nombre}, un saludo de la agencia. Queremos confirmar que todo marche de forma excelente con su seguro de ${company}. No dude en contactarnos para resolver cualquier inquietud administrativa de inmediato.`;
-                }
-
-                const encodedMsg = encodeURIComponent(recoveryMsg);
-                const waLink = `https://api.whatsapp.com/send?phone=1${phone.replace(/\D/g,'')}&text=${encodedMsg}`;
+                let recoveryMsg = c["AI_Accion"] || "Llamar urgentemente para revisar el caso.";
+                
+                // Formatear el breakdown para mostrarlo como mini-lista
+                let breakdownHTML = analysis.breakdown.map(b => `<div class="truncate text-slate-500">• ${b}</div>`).join('');
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
@@ -1368,35 +1424,29 @@
                             <span class="font-bold text-slate-800 block">${nombre}</span>
                             <span class="text-xs text-slate-400">${company}</span>
                         </td>
-                        <td class="p-4">${scoreBadge}</td>
-                        <td class="p-4">${catBadge}</td>
-                        <td class="p-4 text-xs text-slate-600 font-mono italic max-w-xs truncate" title="${originalNote}">
-                            "${originalNote}"
+                        <td class="p-4">
+                            <div class="text-center font-black text-lg ${scoreColor}">${analysis.score} pts</div>
+                            <div class="text-[9.5px] mt-1.5 space-y-0.5" title="${analysis.indicators}">
+                                ${breakdownHTML}
+                            </div>
                         </td>
+                        <td class="p-4">${scoreBadge}</td>
+                        <td class="p-4 text-xs font-bold text-slate-600 max-w-xs truncate" title="${analysis.indicators}">${analysis.indicators}</td>
                         <td class="p-4 text-xs text-slate-500 max-w-xs">${analysis.matchedText}</td>
                         <td class="p-4 text-right">
-                            <div class="flex items-center justify-end gap-1">
-                                <button onclick="copyToClipboard('${recoveryMsg.replace(/'/g, "\\'")}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-bold transition-all">
-                                    Copiar
-                                </button>
-                                <a href="${waLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white p-1.5 rounded-lg text-xs transition-colors" title="WhatsApp Retención">
-                                    <i data-lucide="message-square" class="w-4 h-4"></i>
-                                </a>
-                            </div>
+                            <button onclick="copyToClipboard('${recoveryMsg.replace(/'/g, "\\'")}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-bold transition-all">
+                                Copiar Acción
+                            </button>
                         </td>
                     </tr>
                 `;
             });
 
-            // Update risk numbers
             document.getElementById('risk-count-rojo').innerText = rojoCount;
             document.getElementById('risk-count-amarillo').innerText = amarilloCount;
             document.getElementById('risk-count-verde').innerText = verdeCount;
-            
-            // Badge in the sidebar tab
             document.getElementById('riskBadge').innerText = rojoCount;
 
-            // Generate Risk Donut Chart
             if (chartInstances['riskDonutChart']) chartInstances['riskDonutChart'].destroy();
             const ctxRisk = document.getElementById('riskDonutChart').getContext('2d');
             chartInstances['riskDonutChart'] = new Chart(ctxRisk, {
@@ -1415,40 +1465,283 @@
                     plugins: { legend: { display: false } }
                 }
             });
-
             lucide.createIcons();
         }
 
-        function updateCharts() {
-            // Chart 1: Company Distribution
-            const companies = {};
-            clientsData.forEach(c => {
-                const comp = getSafeValue(c, "Compañia") || "No Definida";
-                companies[comp] = (companies[comp] || 0) + 1;
-            });
+        // --- TOMA DE DECISIONES: GENERAR PLAN DE ACCIÓN INDIVIDUAL CON IA ---
+        async function runIndividualAIPlan(idx) {
+            const client = clientsData[idx];
+            if (!client) return;
 
-            if (chartInstances['companyChart']) chartInstances['companyChart'].destroy();
-            const ctxCompany = document.getElementById('companyChart').getContext('2d');
-            chartInstances['companyChart'] = new Chart(ctxCompany, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(companies),
-                    datasets: [{
-                        label: 'Número de Clientes',
-                        data: Object.values(companies),
-                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#64748b'],
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, grid: { drawBorder: false } } }
+            const btn = document.getElementById(`genPlanBtn-${idx}`);
+            const loader = document.getElementById(`planLoader-${idx}`);
+            const planResultArea = document.getElementById(`planResult-${idx}`);
+
+            btn.classList.add('hidden');
+            loader.classList.remove('hidden');
+
+            const apiKey = ""; // API Key de Gemini autocompletada por entorno
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const note = getSafeValue(client, "Observación de seguimiento");
+            const name = getSafeValue(client, "Nombre");
+            const specCase = getSafeValue(client, "Caso especial");
+            const company = getSafeValue(client, "Compañia");
+            const premium = getSafeValue(client, "Prima mensual");
+            const docReq = getSafeValue(client, "Documentos Solicitados");
+
+            const proactiveDetails = calculatePredictiveRiskScore(client);
+
+            const planPrompt = `Eres el Director de Retención de Clientes de una Corredora de Seguros Médicos regulados por ACA en EE.UU. 
+            Tu misión es crear una estrategia de retención quirúrgica para el asegurado: "${name}" que tiene un plan con la compañía "${company}" (Prima mensual: $${premium}).
+            Su caso especial es: "${specCase || 'Ninguno'}".
+            La nota del agente indica: "${note}".
+            Tiene los siguientes documentos requeridos pendientes con el Marketplace: "${docReq}".
+            Factores detectados en la auditoría del scoring de riesgo: "${proactiveDetails.indicators}".
+
+            Escribe un plan de contención de 3 pasos concretos y un Script de WhatsApp empático.
+            Devuelve un objeto JSON estructurado exactamente así:
+            {
+                "paso1": "Acción directa y empática a ejecutar de inmediato",
+                "paso2": "Propuesta de valor o contraoferta (subsidio / ajuste de plan / apelación de documentos)",
+                "paso3": "Protocolo de salida o cierre en caso de resistencia",
+                "script": "Mensaje de WhatsApp exacto, persuasivo, cálido y profesional (con saltos de línea y emojis)"
+            }`;
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: planPrompt }] }],
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                            responseSchema: {
+                                type: "OBJECT",
+                                properties: {
+                                    paso1: { type: "STRING" },
+                                    paso2: { type: "STRING" },
+                                    paso3: { type: "STRING" },
+                                    script: { type: "STRING" }
+                                },
+                                required: ["paso1", "paso2", "paso3", "script"]
+                            }
+                        }
+                    })
+                });
+
+                if (!res.ok) throw new Error("Error API");
+                const data = await res.json();
+                const plan = JSON.parse(data.candidates?.[0]?.content?.parts?.[0]?.text.trim());
+
+                // Guardar estrategia en memoria
+                client["AI_Plan_Estrategico"] = plan;
+
+                // Renderizar plan de contingencia
+                renderSinglePlanBox(idx, planResultArea, plan);
+                showToast(`¡Plan estratégico creado con IA para ${name}!`);
+            } catch (err) {
+                showToast("Ocurrió un error al contactar al motor de IA.", false);
+                btn.classList.remove('hidden');
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+
+        function renderSinglePlanBox(idx, container, plan) {
+            const client = clientsData[idx];
+            const phone = getSafeValue(client, "TelefoNO 1");
+            const encodedScript = encodeURIComponent(plan.script);
+            const waLink = `https://api.whatsapp.com/send?phone=1${phone.replace(/\D/g,'')}&text=${encodedScript}`;
+
+            container.innerHTML = `
+                <div class="mt-4 p-5 bg-gradient-to-br from-indigo-50/50 to-sky-50/50 border border-sky-100 rounded-xl space-y-4 animate-fade-in text-xs">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-3 bg-white rounded-lg border border-slate-100">
+                            <span class="font-bold text-indigo-700 uppercase block mb-1">Paso 1: Contacto</span>
+                            <p class="text-slate-600">${plan.paso1}</p>
+                        </div>
+                        <div class="p-3 bg-white rounded-lg border border-slate-100">
+                            <span class="font-bold text-sky-700 uppercase block mb-1">Paso 2: Contraoferta</span>
+                            <p class="text-slate-600">${plan.paso2}</p>
+                        </div>
+                        <div class="p-3 bg-white rounded-lg border border-slate-100">
+                            <span class="font-bold text-slate-700 uppercase block mb-1">Paso 3: Cierre</span>
+                            <p class="text-slate-600">${plan.paso3}</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-white rounded-xl border border-slate-200">
+                        <span class="font-bold text-slate-700 block mb-1.5 flex items-center gap-1.5">
+                            <i data-lucide="message-square" class="w-4 h-4 text-emerald-500"></i> Script de Retención WhatsApp sugerido:
+                        </span>
+                        <div class="bg-slate-50 p-3 rounded-lg text-[11px] font-mono text-slate-600 whitespace-pre-wrap select-all">
+"${plan.script}"
+                        </div>
+                        <div class="flex gap-2 justify-end mt-3">
+                            <button onclick="copyToClipboard('${plan.script.replace(/\n/g, '\\n').replace(/'/g, "\\'")}')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-1.5 rounded-lg">
+                                Copiar Mensaje
+                            </button>
+                            <a href="${waLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+                                Enviar WhatsApp <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderDecisionSupport() {
+            const container = document.getElementById('redClientsActionContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const redClients = clientsData.map((c, idx) => ({ client: c, originalIndex: idx }))
+                                         .filter(item => {
+                                             const scan = scanClientRisk(item.client);
+                                             return scan.score >= 61; // Filtro estricto: Sólo nivel Rojo
+                                         });
+
+            document.getElementById('decisionTargetCount').innerText = `${redClients.length} Casos Críticos`;
+
+            if (redClients.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center text-slate-400">
+                        <i data-lucide="check-circle" class="w-12 h-12 text-emerald-500 mx-auto mb-2"></i>
+                        No se identifican clientes en estado de riesgo ROJO actualmente.
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            redClients.forEach(item => {
+                const c = item.client;
+                const idx = item.originalIndex;
+
+                const nombre = getSafeValue(c, "Nombre");
+                const company = getSafeValue(c, "Compañia");
+                const premium = getSafeValue(c, "Prima mensual");
+                const phone = getSafeValue(c, "TelefoNO 1");
+                const ssn = isPrivacyMode ? maskSSN(getSafeValue(c, "SSN")) : getSafeValue(c, "SSN");
+                const specCase = getSafeValue(c, "Caso especial") || "Ninguna condición de salud registrada";
+                const obsSeg = getSafeValue(c, "Observación de seguimiento") || "Sin comentarios de seguimiento.";
+                const docReq = getSafeValue(c, "Documentos Solicitados") || "Completos";
+
+                const proactiveData = calculatePredictiveRiskScore(c);
+
+                let aiPlanResultHTML = "";
+                let hideBtnClass = "";
+
+                if (c["AI_Plan_Estrategico"]) {
+                    hideBtnClass = "hidden";
+                    const p = c["AI_Plan_Estrategico"];
+                    const waLink = `https://api.whatsapp.com/send?phone=1${phone.replace(/\D/g,'')}&text=${encodeURIComponent(p.script)}`;
+                    
+                    aiPlanResultHTML = `
+                        <div class="mt-4 p-5 bg-gradient-to-br from-indigo-50/50 to-sky-50/50 border border-sky-100 rounded-xl space-y-4 text-xs">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="p-3 bg-white rounded-lg border border-slate-100">
+                                    <span class="font-bold text-indigo-700 uppercase block mb-1">Paso 1: Contacto</span>
+                                    <p class="text-slate-600">${p.paso1}</p>
+                                </div>
+                                <div class="p-3 bg-white rounded-lg border border-slate-100">
+                                    <span class="font-bold text-sky-700 uppercase block mb-1">Paso 2: Contraoferta</span>
+                                    <p class="text-slate-600">${p.paso2}</p>
+                                </div>
+                                <div class="p-3 bg-white rounded-lg border border-slate-100">
+                                    <span class="font-bold text-slate-700 uppercase block mb-1">Paso 3: Cierre</span>
+                                    <p class="text-slate-600">${p.paso3}</p>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-white rounded-xl border border-slate-200">
+                                <span class="font-bold text-slate-700 block mb-1.5 flex items-center gap-1.5">
+                                    <i data-lucide="message-square" class="w-4 h-4 text-emerald-500"></i> Script de Retención WhatsApp sugerido:
+                                </span>
+                                <div class="bg-slate-50 p-3 rounded-lg text-[11px] font-mono text-slate-600 whitespace-pre-wrap select-all">
+"${p.script}"
+                                </div>
+                                <div class="flex gap-2 justify-end mt-3">
+                                    <button onclick="copyToClipboard('${p.script.replace(/\n/g, '\\n').replace(/'/g, "\\'")}')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-1.5 rounded-lg">
+                                        Copiar Mensaje
+                                    </button>
+                                    <a href="${waLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+                                        Enviar WhatsApp <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 }
-            });
 
-            // Chart 2: Document statuses
+                container.innerHTML += `
+                    <div class="bg-white p-5 rounded-2xl border border-rose-200 shadow-sm space-y-4">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                            <div>
+                                <h3 class="font-extrabold text-base text-slate-800 flex items-center gap-1.5">
+                                    ${nombre} 
+                                    <span class="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Score: ${proactiveData.score} Puntos</span>
+                                </h3>
+                                <p class="text-xs text-slate-400 mt-0.5">Seguro Social: <span class="font-mono">${ssn}</span> | Teléfono: ${phone}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs text-slate-400 block">Compañía / Cobertura</span>
+                                <strong class="text-sm text-slate-700 block">${company} | Prima: $${premium}</strong>
+                            </div>
+                        </div>
+
+                        <!-- Client Status Matrix with Scoring Explanation -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                            <div class="col-span-1 md:col-span-3 bg-rose-50 border border-rose-100 p-3 rounded-lg mb-2">
+                                <span class="text-[10px] font-bold text-rose-800 uppercase block mb-1.5 flex items-center gap-1">
+                                    <i data-lucide="calculator" class="w-3.5 h-3.5"></i> Desglose de Puntaje de Riesgo (${proactiveData.score} pts totales):
+                                </span>
+                                <ul class="list-disc pl-4 text-xs text-rose-700 font-medium space-y-0.5">
+                                    ${proactiveData.breakdown.map(b => `<li>${b}</li>`).join('')}
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <span class="text-slate-400 block font-bold uppercase text-[9px]">Gatillos Principales</span>
+                                <span class="font-bold text-rose-700 block mt-1">${proactiveData.indicators}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block font-bold uppercase text-[9px]">Soporte del Mercado</span>
+                                <span class="font-medium text-amber-700 font-bold block mt-1">${docReq}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block font-bold uppercase text-[9px]">Último Comentario</span>
+                                <span class="font-medium text-slate-800 italic block mt-1">"${obsSeg}"</span>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic plan result rendering -->
+                        <div id="planResult-${idx}">
+                            ${aiPlanResultHTML}
+                        </div>
+
+                        <!-- Generator trigger btn -->
+                        <div class="flex items-center justify-end">
+                            <button id="genPlanBtn-${idx}" onclick="runIndividualAIPlan(${idx})" class="${hideBtnClass} bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-4 py-3 rounded-xl flex items-center gap-2 transition-all shadow-md shadow-rose-600/10">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-white"></i> Diseñar Plan de Acción Personalizado con IA
+                            </button>
+                            
+                            <!-- Dynamic loading feedback -->
+                            <div id="planLoader-${idx}" class="hidden flex items-center gap-2.5 text-xs text-rose-600 font-bold py-1.5 animate-pulse">
+                                <span class="w-3.5 h-3.5 rounded-full border-2 border-rose-600 border-t-transparent animate-spin"></span>
+                                Generando estrategia de retención quirúrgica con Gemini...
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        // --- DASHBOARD CHARTS ---
+        function updateCharts() {
             let completeCount = 0;
             let incompleteCount = 0;
             let inVerificationCount = 0;
@@ -1465,473 +1758,27 @@
             });
 
             if (chartInstances['documentChart']) chartInstances['documentChart'].destroy();
-            const ctxDocs = document.getElementById('documentChart').getContext('2d');
-            chartInstances['documentChart'] = new Chart(ctxDocs, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Documentos Completos', 'Incompletos', 'En Verificación'],
-                    datasets: [{
-                        data: [completeCount, incompleteCount, inVerificationCount],
-                        backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+            const ctxDocs = document.getElementById('documentChart');
+            if (ctxDocs) {
+                chartInstances['documentChart'] = new Chart(ctxDocs.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Documentos Completos', 'Incompletos', 'En Verificación'],
+                        datasets: [{
+                            data: [completeCount, incompleteCount, inVerificationCount],
+                            backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                        }
                     }
-                }
-            });
-        }
-
-        // --- DIAGNOSTICS & CLEANING ---
-        let diagnostics = [];
-        function runDiagnostics() {
-            diagnostics = [];
-            let badPhones = 0;
-            let badDates = 0;
-            let duplicates = {};
-            let duplicateCount = 0;
-
-            clientsData.forEach((c, idx) => {
-                const nombre = getSafeValue(c, "Nombre");
-                const telefono = getSafeValue(c, "TelefoNO 1");
-                const ssn = getSafeValue(c, "SSN");
-                const nac = getSafeValue(c, "Fecha de nacimiento");
-
-                if (telefono && !/^\d{10}$/.test(telefono.replace(/\D/g, ''))) {
-                    badPhones++;
-                    diagnostics.push({
-                        idx,
-                        nombre,
-                        campo: "Teléfono",
-                        valor: telefono,
-                        detalle: "Formato no estandarizado (debe ser de 10 dígitos)",
-                        severidad: "Media"
-                    });
-                }
-
-                if (nac && nac !== "-" && isNaN(Date.parse(nac))) {
-                    badDates++;
-                    diagnostics.push({
-                        idx,
-                        nombre,
-                        campo: "Fecha de Nacimiento",
-                        valor: nac,
-                        detalle: "Formato de fecha inválido o mal registrado",
-                        severidad: "Alta"
-                    });
-                }
-
-                const key = `${nombre.toLowerCase()}_${ssn}`;
-                if (nombre) {
-                    if (duplicates[key]) {
-                        duplicateCount++;
-                        diagnostics.push({
-                            idx,
-                            nombre,
-                            campo: "Registro de Cliente",
-                            valor: "ID: " + ssn,
-                            detalle: "Registro de asegurado duplicado",
-                            severidad: "Baja"
-                        });
-                    } else {
-                        duplicates[key] = true;
-                    }
-                }
-            });
-
-            document.getElementById('diag-bad-phones').innerText = badPhones;
-            document.getElementById('diag-bad-dates').innerText = badDates;
-            document.getElementById('diag-duplicates').innerText = duplicateCount;
-
-            const badge = document.getElementById('cleaningBadge');
-            if (diagnostics.length > 0) {
-                badge.innerText = diagnostics.length;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
+                });
             }
-
-            renderDiagnosticTable();
-        }
-
-        function renderDiagnosticTable() {
-            const tbody = document.getElementById('cleaningDiagnosticTable');
-            tbody.innerHTML = '';
-
-            if (diagnostics.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-400">Excelente. No se encontraron anomalías críticas de formato en los datos actuales.</td></tr>`;
-                return;
-            }
-
-            diagnostics.forEach(d => {
-                let badgeClass = "bg-amber-100 text-amber-800";
-                if (d.severidad === "Alta") badgeClass = "bg-red-100 text-red-800";
-                if (d.severidad === "Baja") badgeClass = "bg-slate-100 text-slate-800";
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-4 font-semibold text-slate-800">${d.nombre}</td>
-                        <td class="p-4">
-                            <span class="font-medium text-slate-700 block">${d.campo}</span>
-                            <span class="text-xs text-red-500">${d.detalle} (${d.valor})</span>
-                        </td>
-                        <td class="p-4"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${badgeClass}">${d.severidad}</span></td>
-                        <td class="p-4 text-right">
-                            <button onclick="fixRecord(${d.idx}, '${d.campo}')" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg text-xs font-bold transition-all">
-                                Corregir
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function fixRecord(idx, campo) {
-            const client = clientsData[idx];
-            if (campo === "Teléfono") {
-                let num = getSafeValue(client, "TelefoNO 1").replace(/\D/g, '');
-                if (num.length >= 10) {
-                    client["TelefoNO 1"] = num.slice(-10);
-                } else {
-                    client["TelefoNO 1"] = "N/A";
-                }
-                showToast(`Teléfono del cliente ${client["Nombre"]} normalizado.`);
-            } else if (campo === "Fecha de Nacimiento") {
-                client["Fecha de nacimiento"] = "1990-01-01"; 
-                showToast(`Fecha inconsistente de ${client["Nombre"]} reajustada temporalmente.`);
-            } else if (campo === "Registro de Cliente") {
-                clientsData.splice(idx, 1);
-                showToast("Registro duplicado removido.");
-            }
-            initializeDashboard();
-        }
-
-        function runAutoCleaning() {
-            clientsData.forEach(c => {
-                let rawPhone = getSafeValue(c, "TelefoNO 1").replace(/\D/g, '');
-                if (rawPhone.length >= 10) {
-                    c["TelefoNO 1"] = `(${rawPhone.slice(0,3)}) ${rawPhone.slice(3,6)}-${rawPhone.slice(6,10)}`;
-                }
-                if (c["Nombre"]) {
-                    c["Nombre"] = c["Nombre"].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
-                }
-                const paidState = getSafeValue(c, "Estado del pago");
-                if (paidState === "Pagado" && !getSafeValue(c, "Pagado hasta")) {
-                    c["Pagado hasta"] = "05/31/2026";
-                }
-            });
-
-            showToast("Base de datos completamente normalizada y formateada.");
-            initializeDashboard();
-        }
-
-        function exportCleanCSV() {
-            const csv = Papa.unparse(clientsData);
-            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", "cartera_clientes_seguros_limpio.csv");
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showToast("Archivo CSV depurado listo para descarga.");
-        }
-
-        // --- PORTFOLIO TRACKING & ALERTS ---
-        function populateFilterOptions() {
-            const filterCompany = document.getElementById('filterCompany');
-            const companies = new Set();
-            clientsData.forEach(c => {
-                const comp = getSafeValue(c, "Compañia");
-                if (comp) companies.add(comp);
-            });
-
-            filterCompany.innerHTML = '<option value="">Todas las Compañías</option>';
-            companies.forEach(comp => {
-                filterCompany.innerHTML += `<option value="${comp}">${comp}</option>`;
-            });
-        }
-
-        function applyPortfolioFilters() {
-            renderPortfolioTable();
-        }
-
-        function renderPortfolioTable() {
-            const tbody = document.getElementById('portfolioTableBody');
-            tbody.innerHTML = '';
-
-            const selectedCompany = document.getElementById('filterCompany').value;
-            const selectedPayment = document.getElementById('filterPayment').value;
-            const selectedDocStatus = document.getElementById('filterDocStatus').value;
-
-            clientsData.forEach(c => {
-                const company = getSafeValue(c, "Compañia");
-                const payment = getSafeValue(c, "Estado del pago");
-                const docStatus = getSafeValue(c, "Estado de documentos");
-
-                if (selectedCompany && company !== selectedCompany) return;
-                if (selectedPayment) {
-                    if (selectedPayment === "Pagado" && payment !== "Pagado") return;
-                    if (selectedPayment === "Atrasado" && payment === "Pagado") return;
-                }
-                if (selectedDocStatus) {
-                    if (selectedDocStatus === "Documentos Completos" && !docStatus.toLowerCase().includes('completo')) return;
-                    if (selectedDocStatus === "Incompleto" && !docStatus.toLowerCase().includes('incompleto')) return;
-                }
-
-                const memberId = isPrivacyMode ? maskValue(getSafeValue(c, "Member ID")) : getSafeValue(c, "Member ID");
-                const nombre = getSafeValue(c, "Nombre");
-                
-                let paymentBadge = `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-xs font-bold">Al día</span>`;
-                if (payment === "Atrasado") {
-                    paymentBadge = `<span class="bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs font-bold">Atrasado</span>`;
-                }
-
-                let docBadge = `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-xs font-bold">Completo</span>`;
-                if (docStatus.toLowerCase().includes('incompleto')) {
-                    docBadge = `<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-xs font-bold">Faltante</span>`;
-                }
-
-                let alerts = [];
-                if (payment === "Atrasado") alerts.push(`<span class="text-red-500 font-semibold text-[10px] uppercase tracking-wide block">⚠️ Alerta Pago</span>`);
-                if (docStatus.toLowerCase().includes('incompleto')) alerts.push(`<span class="text-amber-600 font-semibold text-[10px] uppercase tracking-wide block">⚠️ Doc. Pendiente</span>`);
-                
-                const alertCell = alerts.length > 0 ? alerts.join("") : `<span class="text-slate-400 text-xs">Sin alertas</span>`;
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-4 font-semibold text-slate-800">${nombre}</td>
-                        <td class="p-4">
-                            <span class="font-medium text-slate-700 block">${company || "N/A"}</span>
-                            <span class="text-xs text-slate-400 font-mono">${memberId}</span>
-                        </td>
-                        <td class="p-4">${paymentBadge}</td>
-                        <td class="p-4">${docBadge}</td>
-                        <td class="p-4 text-xs font-medium text-slate-600">${getSafeValue(c, "Fecha de plazo documentos") || "-"}</td>
-                        <td class="p-4 text-xs text-slate-500">${getSafeValue(c, "Fecha de seguimiento") || "-"}</td>
-                        <td class="p-4">${alertCell}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        // --- CLIENT BEHAVIOR & CONTACT OPTIMIZATION ---
-        function renderBehaviorAnalysis() {
-            const channels = {};
-            let wazzupSuccess = 0, wazzupTotal = 0;
-            let callSuccess = 0, callTotal = 0;
-            let otherSuccess = 0, otherTotal = 0;
-
-            clientsData.forEach(c => {
-                const channel = getSafeValue(c, "Medio de contacto") || "Wazzup";
-                const isContacted = getSafeValue(c, "Contacto").toUpperCase() === "SI";
-
-                channels[channel] = (channels[channel] || 0) + 1;
-
-                if (channel.toLowerCase().includes('wazz')) {
-                    wazzupTotal++;
-                    if (isContacted) wazzupSuccess++;
-                } else if (channel.toLowerCase().includes('llam')) {
-                    callTotal++;
-                    if (isContacted) callSuccess++;
-                } else {
-                    otherTotal++;
-                    if (isContacted) otherSuccess++;
-                }
-            });
-
-            document.getElementById('behavior-wazzup-rate').innerText = wazzupTotal > 0 ? `${Math.round((wazzupSuccess / wazzupTotal) * 100)}%` : '0%';
-            document.getElementById('behavior-call-rate').innerText = callTotal > 0 ? `${Math.round((callSuccess / callTotal) * 100)}%` : '0%';
-            document.getElementById('behavior-other-rate').innerText = otherTotal > 0 ? `${Math.round((otherSuccess / otherTotal) * 100)}%` : '0%';
-
-            if (chartInstances['channelChart']) chartInstances['channelChart'].destroy();
-            const ctxChannel = document.getElementById('channelPreferenceChart').getContext('2d');
-            chartInstances['channelChart'] = new Chart(ctxChannel, {
-                type: 'pie',
-                data: {
-                    labels: Object.keys(channels),
-                    datasets: [{
-                        data: Object.values(channels),
-                        backgroundColor: ['#22c55e', '#3b82f6', '#94a3b8'],
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
-                }
-            });
-
-            const specialContainer = document.getElementById('specialNotesContainer');
-            specialContainer.innerHTML = '';
-
-            let specialNotesFound = 0;
-            clientsData.forEach(c => {
-                const specCase = getSafeValue(c, "Caso especial");
-                const datoEspecial = getSafeValue(c, "Dato especial del cliente");
-                const obsSeg = getSafeValue(c, "Observación de seguimiento");
-
-                if (specCase || datoEspecial || obsSeg.includes("médico") || obsSeg.includes("médica") || obsSeg.includes("embarazo") || obsSeg.includes("down")) {
-                    specialNotesFound++;
-                    const contextText = specCase || datoEspecial || "Requiere especialista";
-                    specialContainer.innerHTML += `
-                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-3">
-                            <span class="p-1.5 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold mt-0.5 shrink-0">Caso</span>
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-800">${getSafeValue(c, "Nombre")}</h4>
-                                <p class="text-xs text-slate-600 mt-1">${contextText}</p>
-                                <p class="text-[10px] text-slate-400 mt-0.5 italic">Seguimiento: "${obsSeg}"</p>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-
-            if (specialNotesFound === 0) {
-                specialContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No se registran notas especiales ni condiciones de salud.</p>`;
-            }
-        }
-
-        // --- DECISION MAKING AND ACTIONS ---
-        function renderDecisionSupport() {
-            const cardContainer = document.getElementById('prioritizedActionCards');
-            cardContainer.innerHTML = '';
-
-            const riskyClients = clientsData.filter(c => {
-                return getSafeValue(c, "Estado del pago") === "Atrasado" || 
-                       getSafeValue(c, "Estado de documentos").toLowerCase().includes('incompleto');
-            });
-
-            if (riskyClients.length === 0) {
-                cardContainer.innerHTML = `<div class="p-8 text-center text-slate-400 col-span-2">Increíble. Todos tus clientes se encuentran solventes con su seguro médico.</div>`;
-                return;
-            }
-
-            riskyClients.forEach(c => {
-                const isUnpaid = getSafeValue(c, "Estado del pago") === "Atrasado";
-                const isDocIncomplete = getSafeValue(c, "Estado de documentos").toLowerCase().includes('incompleto');
-                const nombre = getSafeValue(c, "Nombre");
-                const canalFav = getSafeValue(c, "Medio de contacto");
-                const phone = getSafeValue(c, "TelefoNO 1");
-                const comp = getSafeValue(c, "Compañia");
-
-                let riskFactor = "";
-                let advice = "";
-                let colorTheme = "border-amber-200 bg-amber-50/20";
-                let textTemplate = "";
-
-                if (isUnpaid && isDocIncomplete) {
-                    riskFactor = "Riesgo Muy Alto (Pago + Documentos)";
-                    advice = `Urgente llamar. El cliente no cuenta con documentos verificados y su prima está pendiente de pago.`;
-                    colorTheme = "border-red-200 bg-red-50/20";
-                    textTemplate = `Hola ${nombre}, le escribimos de la agencia sobre su seguro médico con ${comp}. Identificamos que tiene un pago de prima pendiente y aún nos hace falta su documento de soporte. Por favor contáctenos con urgencia para evitar la cancelación.`;
-                } else if (isUnpaid) {
-                    riskFactor = "Riesgo de Cancelación por Pago";
-                    advice = `Se recomienda contacto preferente por ${canalFav}. Recordar fecha de gracia de pago.`;
-                    textTemplate = `Hola ${nombre}, un recordatorio de su prima de $${getSafeValue(c, "Prima mensual")} de su plan con ${comp}. Por favor confirme si ya ha procesado el pago para asegurar su cobertura.`;
-                } else {
-                    riskFactor = "Pendiente Requisito ACA";
-                    advice = `Falta cargar (${getSafeValue(c, "Documentos Solicitados")}). Plazo límite: ${getSafeValue(c, "Fecha de plazo documentos") || 'Vencido'}.`;
-                    textTemplate = `Hola ${nombre}, necesitamos su apoyo completando los requisitos del Marketplace. Falta cargar el documento: "${getSafeValue(c, "Documentos Solicitados")}". Por favor, compártanos una foto para subirlo hoy mismo.`;
-                }
-
-                const encodedMsg = encodeURIComponent(textTemplate);
-                const waLink = `https://api.whatsapp.com/send?phone=1${phone.replace(/\D/g,'')}&text=${encodedMsg}`;
-
-                cardContainer.innerHTML += `
-                    <div class="p-5 rounded-2xl border ${colorTheme} flex flex-col justify-between space-y-4">
-                        <div>
-                            <div class="flex items-center justify-between">
-                                <h3 class="font-bold text-slate-800 text-sm">${nombre}</h3>
-                                <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-slate-800 text-white">${comp}</span>
-                            </div>
-                            <span class="text-xs font-black block text-red-700 mt-1">${riskFactor}</span>
-                            <p class="text-xs text-slate-500 mt-2">${advice}</p>
-                        </div>
-
-                        <div class="p-3 bg-white rounded-xl border border-slate-200 text-[11px] text-slate-600 font-mono select-all">
-                            "${textTemplate}"
-                        </div>
-
-                        <div class="flex items-center justify-between gap-2 pt-2">
-                            <span class="text-xs text-slate-400">Canal: <strong class="text-slate-600">${canalFav}</strong></span>
-                            <div class="flex gap-2">
-                                <button onclick="copyToClipboard('${textTemplate.replace(/'/g, "\\'")}')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors">
-                                    Copiar
-                                </button>
-                                <a href="${waLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1 transition-colors">
-                                    Enviar Wazzup <i data-lucide="external-link" class="w-3 h-3"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            lucide.createIcons();
-        }
-
-        // --- REGULATORY SECURITY & COMPLIANCE ---
-        function renderComplianceTable() {
-            const tbody = document.getElementById('complianceTableBody');
-            tbody.innerHTML = '';
-
-            let mecCount = 0;
-            let incomeChecked = 0;
-            let immigrationChecked = 0;
-
-            clientsData.forEach(c => {
-                const nombre = getSafeValue(c, "Nombre");
-                const rawSSN = getSafeValue(c, "SSN");
-                const rawPassword = getSafeValue(c, "Contraseña");
-                const userComp = getSafeValue(c, "Usuario en compañia") || "N/A";
-                const docSt = getSafeValue(c, "Estado de documentos");
-
-                const ssn = isPrivacyMode ? maskSSN(rawSSN) : rawSSN;
-                const password = isPrivacyMode ? "••••••••" : rawPassword;
-
-                if (getSafeValue(c, "Estado en compañia") === "Activo") mecCount++;
-                if (!docSt.toLowerCase().includes('income')) incomeChecked++;
-                if (!docSt.toLowerCase().includes('estatus migratorio') && !docSt.toLowerCase().includes('residencia')) immigrationChecked++;
-
-                const reqPendientes = getSafeValue(c, "Documentos Solicitados") === "Documentos Completos" ? 'Ninguno' : getSafeValue(c, "Documentos Solicitados");
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-4 font-semibold text-slate-800">${nombre}</td>
-                        <td class="p-4 font-mono text-xs text-slate-500">${ssn || "-"}</td>
-                        <td class="p-4 text-xs font-semibold text-slate-700">${userComp}</td>
-                        <td class="p-4 font-mono text-xs text-slate-500">${password || "-"}</td>
-                        <td class="p-4">
-                            <span class="text-xs font-semibold ${reqPendientes === 'Ninguno' ? 'text-emerald-600' : 'text-red-500'}">
-                                ${reqPendientes}
-                            </span>
-                        </td>
-                        <td class="p-4 text-[11px] text-slate-400">Verificado el ${getSafeValue(c, "Ultima fecha") || 'Hoy'}</td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('compliance-mec-count').innerText = `${mecCount} Vidas`;
-            document.getElementById('compliance-income-verified').innerText = clientsData.length > 0 ? `${Math.round((incomeChecked / clientsData.length) * 100)}%` : '0%';
-            document.getElementById('compliance-immigration-count').innerText = clientsData.length > 0 ? `${Math.round((immigrationChecked / clientsData.length) * 100)}%` : '0%';
-        }
-
-        // Mask helpers
-        function maskValue(val) {
-            if (!val || val === "-") return "-";
-            return val.length > 4 ? `••••-${val.slice(-4)}` : val;
-        }
-
-        function maskSSN(ssn) {
-            if (!ssn || ssn === "-") return "-";
-            let clean = ssn.replace(/\D/g, '');
-            return clean.length >= 4 ? `***-**-${clean.slice(-4)}` : ssn;
         }
 
         function copyToClipboard(text) {
@@ -1941,28 +1788,18 @@
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            showToast("Plantilla copiada al portapapeles.");
+            showToast("Mensaje copiado al portapapeles.");
         }
 
-        function downloadComplianceReport() {
-            let content = "=== REPORTE EJECUTIVO DE CUMPLIMIENTO ACA (CFR MARKETPLACE) ===\n";
-            content += "Generado el: " + new Date().toLocaleDateString() + "\n";
-            content += "---------------------------------------------------------\n";
-            content += "Número de pólizas en auditoría: " + clientsData.length + "\n";
-            content += "Pólizas con Cobertura Esencial (MEC): " + clientsData.filter(c => getSafeValue(c, "Estado en compañia") === "Activo").length + "\n";
-            content += "Consistencia de subsidios ingresados contra ingresos declarados: " + document.getElementById('compliance-income-verified').innerText + "\n\n";
-            content += "Detalle por Asegurado:\n";
+        function maskValue(val) {
+            if (!val || val === "-") return "-";
+            return val.length > 4 ? `••••-${val.slice(-4)}` : val;
+        }
 
-            clientsData.forEach(c => {
-                content += `- ${getSafeValue(c, "Nombre")} | Compañía: ${getSafeValue(c, "Compañia")} | Requisito: ${getSafeValue(c, "Documentos Solicitados")}\n`;
-            });
-
-            const blob = new Blob([content], { type: "text/plain;charset=utf-8;" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "auditoria_cumplimiento_aca.txt";
-            link.click();
-            showToast("Reporte descargado para envío al ente regulador.");
+        function maskSSN(ssn) {
+            if (!ssn || ssn === "-") return "-";
+            let clean = ssn.replace(/\D/g, '');
+            return clean.length >= 4 ? `***-**-${clean.slice(-4)}` : ssn;
         }
     </script>
 </body>
